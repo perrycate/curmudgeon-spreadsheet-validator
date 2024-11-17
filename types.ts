@@ -1,6 +1,7 @@
 // This will be moved around once we start actually building something,
 // I'm just jotting down the types as a guiding inspiration.
 
+// ------------- Library types -----------.
 
 export type ImporterProps<T extends RowTemplate> = {
   rowFormat: T
