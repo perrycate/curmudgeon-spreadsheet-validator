@@ -6,7 +6,6 @@ import { Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
- * 2. Add mantine-react-table for a "review" phase, pipe CSVImporter output into it.
  * 3. Add some primitives for showing errors in the review phase.
  * 4. Add logic for parsing rich types, and surfacing errors in the review phase (not yet correcting)
  * 5. Figure out what primitives we need for allowing the user to actually edit/correct items during review.
