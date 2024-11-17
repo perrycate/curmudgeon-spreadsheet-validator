@@ -1,5 +1,4 @@
 export type RowTemplate = {
-  // Note: To mark a column as "optional", make the type "| null".
   [key: string]: Column<any>
 }
 

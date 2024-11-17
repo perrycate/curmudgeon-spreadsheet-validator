@@ -63,3 +63,5 @@ const myImporterArgs: ImporterProps<typeof myTemplate> = {
 }
 
 // I think (hope?) in practice the caller wouldn't need to explicitly define the
+// importer props type if they're just passing it into the react importer.
+// It'.x.xs just that the react importer doesn't exist yet. Uh, TODO.
