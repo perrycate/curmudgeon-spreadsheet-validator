@@ -13,10 +13,6 @@ export type Column<Type> = {
   // If true, users will be forced to map a column in the input file to this column.
   mustBeMapped?: boolean
 
-  // If true, the returned value for this column will be nullable.
-  // TODO: Make ReturnedRow type optional if this is true.
-  isOptional?: boolean
-
   // Probably a bunch of optional hooks here for things like checking
   // the data looks a certain way and prompting the user if it doesn't.
   //
@@ -28,31 +24,33 @@ export type Column<Type> = {
   parse: (cellValue: string) => Type
 }
 
-type MaybeOptionalVal<T, C extends Column<T>> = C extends OptionalColumn<T> ? T | null : T
+type OptionalColumn<T> = Column<T> & {optional: true}
+
+type GetValType<T, C extends Column<T>> = C extends OptionalColumn<T> ? T | null : T
 
 // ReturnedRow "unwraps" each column type in a RowTemplate.
 export type ReturnedRow<T extends RowTemplate> = {
-  readonly [Property in keyof T]: T[Property] extends OptionalColumn<infer ReturnType> ? ReturnType | null : (T[Property] extends RequiredColumn<infer ReturnType> ? ReturnType : never)
+  readonly [Property in keyof T]: T[Property] extends Column<infer ReturnType> ? GetValType<ReturnType, T[Property]> : never
 }
 
-type OptionalColumn<T> = Column<T> & {isOptional: true}
-
-type RequiredColumn<T> = (Column<T> & {isOptional: undefined | null | false}) | Omit<Column<T>, 'isOptional'>
-
-const requiredColumn: RequiredColumn<number> = {
-    parse: (_: string) => 42
+function makeOptional<T>(c: Column<T>): OptionalColumn<T> {
+  return {
+    ...c,
+    optional: true as const
+  }
 }
 
 // Let's say a caller defines a template as such:
 const myTemplate = {
-  description: {
-    isOptional: true as const,
-    parse: (_: string) => "test"
-  },
+  description: makeOptional({
+    parse: (val: string) => val
+  }),
   startDate: {
     parse: (_: string) => new Date()
   },
-  quantity: requiredColumn,
+  quantity: {
+    parse: (val: string) => Number.parseFloat(val)
+  },
 }
 
 export type ImporterProps<T extends RowTemplate> = {
@@ -67,21 +65,10 @@ const myImporterArgs: ImporterProps<typeof myTemplate> = {
   rowFormat: myTemplate,
   onSuccess: (rows) => {
     rows.map(r => {
-      console.log(r.description) // r.description is a string!
+      console.log(r.description) // r.description is a string | null!
       console.log(r.quantity * 10) // r.quantity is a number!
       console.log(r.startDate)
       // And so forth...
     })
   }
-}
-
-function test<T>(c: Column<T>) {
-  if (c.isOptional) {
-    if (Math.random() < 0.5) {
-      return c.parse("test")
-    }
-    return null
-  }
-
-  return c.parse("test")
 }
