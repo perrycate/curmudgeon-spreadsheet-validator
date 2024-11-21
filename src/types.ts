@@ -33,12 +33,41 @@ export type ReturnedRow<T extends RowTemplate> = {
   readonly [Property in keyof T]: T[Property] extends Column<infer ReturnType> ? GetValType<ReturnType, T[Property]> : never
 }
 
-function makeOptional<T>(c: Column<T>): OptionalColumn<T> {
+export function makeOptional<T>(c: Column<T>): OptionalColumn<T> {
   return {
     ...c,
     optional: true as const
   }
 }
+
+// Idea for later: Rather than all these helper functions, can we construct the template using react?
+
+export function stringColumn(c: Omit<Column<string>, "parse">): Column<string> {
+  return {
+    ...c,
+    // Strings get passed through directly.
+    parse: (s) => s
+  }
+}
+
+export function dateColumn(c: Omit<Column<Date>, "parse">): Column<Date> {
+  return {
+    ...c,
+    // TODO datejs probably.
+    parse: (s) => new Date(s),
+  }
+}
+
+export function numberColumn(c: Omit<Column<number>, "parse">): Column<number> {
+  return {
+    ...c,
+    // TODO error handling etc.
+    // Probably a library to handle all the edge cases, too.
+    parse: (s) => parseFloat(s)
+  }
+}
+
+// Examples / thinking out loud:
 
 // Let's say a caller defines a template as such:
 const myTemplate = {
