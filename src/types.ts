@@ -19,12 +19,26 @@ export type Column<Type> = {
   // I'm imagining a world where users can create their own novel types
   // and specify the functions necessary to parse an input string into
   // that type.
-  //
-  // (Obviously we'll need error handling etc, this is just to shut the compiler up re: unused types.)
-  parse: (cellValue: string) => Type
+  parse: (cellValue: string) => Cell<Type>
 }
 
-type OptionalColumn<T> = Column<T> & {optional: true}
+export type Cell<Type> = {
+  status: 'ok'
+
+  // The parsed value of the cell.
+  value: Type
+
+  // The value that should be shown to the user.
+  // If unset, the value will be directly cast as a string.
+  displayValue?: string
+} | {
+  status: 'error'
+
+  // The error that should be shown to the user.
+  message: string
+}
+
+type OptionalColumn<T> = Column<T> & { optional: true }
 
 type GetValType<T, C extends Column<T>> = C extends OptionalColumn<T> ? T | null : T
 
@@ -46,7 +60,7 @@ export function stringColumn(c: Omit<Column<string>, "parse">): Column<string> {
   return {
     ...c,
     // Strings get passed through directly.
-    parse: (s) => s
+    parse: (s) => ({status: 'ok', value: s})
   }
 }
 
@@ -54,7 +68,7 @@ export function dateColumn(c: Omit<Column<Date>, "parse">): Column<Date> {
   return {
     ...c,
     // TODO datejs probably.
-    parse: (s) => new Date(s),
+    parse: (s) => ({status: 'ok', value: new Date(s)}),
   }
 }
 
@@ -63,7 +77,7 @@ export function numberColumn(c: Omit<Column<number>, "parse">): Column<number> {
     ...c,
     // TODO error handling etc.
     // Probably a library to handle all the edge cases, too.
-    parse: (s) => parseFloat(s)
+    parse: (s) => ({status: 'ok', value: parseFloat(s)}),
   }
 }
 
@@ -71,15 +85,9 @@ export function numberColumn(c: Omit<Column<number>, "parse">): Column<number> {
 
 // Let's say a caller defines a template as such:
 const myTemplate = {
-  description: makeOptional({
-    parse: (val: string) => val
-  }),
-  startDate: {
-    parse: (_: string) => new Date()
-  },
-  quantity: {
-    parse: (val: string) => Number.parseFloat(val)
-  },
+  description: makeOptional(stringColumn({})),
+  startDate: dateColumn({}),
+  quantity: numberColumn({}),
 }
 
 export type ImporterProps<T extends RowTemplate> = {
@@ -90,7 +98,7 @@ export type ImporterProps<T extends RowTemplate> = {
 }
 
 // These are the args we'd pass into our importer react component.
-const myImporterArgs: ImporterProps<typeof myTemplate> = {
+const _myImporterArgs: ImporterProps<typeof myTemplate> = {
   rowFormat: myTemplate,
   onSuccess: (rows) => {
     rows.map(r => {
@@ -101,3 +109,4 @@ const myImporterArgs: ImporterProps<typeof myTemplate> = {
     })
   }
 }
+
