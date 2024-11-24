@@ -1,21 +1,27 @@
 import './App.css'
-import { Importer } from './Importer'
-import { dateColumn, numberColumn, stringColumn } from './types'
+import { Reviewer } from './Reviewer'
 
 function App() {
   return (
     <>
-      <Importer columns={
-        {
-          description: stringColumn({mustBeMapped: true, label: "Description"}),
-          startDate: dateColumn({label: "Start Date"}),
-          quantity: numberColumn({label: "Quantity"}),
-        }}
-        onSuccess={(rows) => {
-          rows.map(r => {
-            console.log(r.description)
-          })
-        }}
+      <Reviewer
+        columns={[
+            { key: "description", parse: (v) => ({status: 'ok', value: v})},
+            { key: "quantity", parse: (v) => ({status: 'ok', value: parseInt(v)})},
+            { key: "date", parse: (v) => ({status: 'ok', value: new Date(v)})},
+        ]}
+        data={[
+            {
+                description: "my first row",
+                quantity: "42",
+                date: "11/23/24",
+            },
+            {
+                description: "my second row",
+                quantity: "43.2",
+                date: "2024-11-23",
+            },
+        ]}
       />
     </>
   )

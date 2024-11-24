@@ -1,4 +1,4 @@
-import { Column, RowTemplate } from "../types";
+import { ColumnTemplate, RowTemplate } from "../types";
 
 type CSVTemplate = {
   columns: CSVTemplateColumn[];
@@ -20,7 +20,7 @@ export function configFromTemplate(t: RowTemplate): CSVTemplate {
   }
 }
 
-function configColumn(key: string, column: Column<any>): CSVTemplateColumn {
+function configColumn(key: string, column: ColumnTemplate<any>): CSVTemplateColumn {
   return {
     name: column.label ?? key,
     key: key,

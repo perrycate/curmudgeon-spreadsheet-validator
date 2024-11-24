@@ -1,8 +1,8 @@
 export type RowTemplate = {
-  [key: string]: Column<any>
+  [key: string]: ColumnTemplate<any>
 }
 
-export type Column<Type> = {
+export type ColumnTemplate<Type> = {
   // If set, the importer will use this as the human-readable label for
   // this column.
   label?: string
@@ -38,16 +38,16 @@ export type Cell<Type> = {
   message: string
 }
 
-type OptionalColumn<T> = Column<T> & { optional: true }
+type OptionalColumn<T> = ColumnTemplate<T> & { optional: true }
 
-type GetValType<T, C extends Column<T>> = C extends OptionalColumn<T> ? T | null : T
+type GetValType<T, C extends ColumnTemplate<T>> = C extends OptionalColumn<T> ? T | null : T
 
 // ReturnedRow "unwraps" each column type in a RowTemplate.
 export type ReturnedRow<T extends RowTemplate> = {
-  readonly [Property in keyof T]: T[Property] extends Column<infer ReturnType> ? GetValType<ReturnType, T[Property]> : never
+  readonly [Property in keyof T]: T[Property] extends ColumnTemplate<infer ReturnType> ? GetValType<ReturnType, T[Property]> : never
 }
 
-export function makeOptional<T>(c: Column<T>): OptionalColumn<T> {
+export function makeOptional<T>(c: ColumnTemplate<T>): OptionalColumn<T> {
   return {
     ...c,
     optional: true as const
@@ -56,7 +56,7 @@ export function makeOptional<T>(c: Column<T>): OptionalColumn<T> {
 
 // Idea for later: Rather than all these helper functions, can we construct the template using react?
 
-export function stringColumn(c: Omit<Column<string>, "parse">): Column<string> {
+export function stringColumn(c: Omit<ColumnTemplate<string>, "parse">): ColumnTemplate<string> {
   return {
     ...c,
     // Strings get passed through directly.
@@ -64,7 +64,7 @@ export function stringColumn(c: Omit<Column<string>, "parse">): Column<string> {
   }
 }
 
-export function dateColumn(c: Omit<Column<Date>, "parse">): Column<Date> {
+export function dateColumn(c: Omit<ColumnTemplate<Date>, "parse">): ColumnTemplate<Date> {
   return {
     ...c,
     // TODO datejs probably.
@@ -72,7 +72,7 @@ export function dateColumn(c: Omit<Column<Date>, "parse">): Column<Date> {
   }
 }
 
-export function numberColumn(c: Omit<Column<number>, "parse">): Column<number> {
+export function numberColumn(c: Omit<ColumnTemplate<number>, "parse">): ColumnTemplate<number> {
   return {
     ...c,
     // TODO error handling etc.
