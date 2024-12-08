@@ -46,10 +46,7 @@ export function Importer<T extends RowTemplate>(props: ImporterProps<T>) {
           />
       );
     case 'reviewing':
-      return (mappedColumns && mappedData ?
-        <Reviewer columns={mappedColumns} data={mappedData} />
-        : null
-      )
+      return null // TODO stitch together.
   }
 
 }
