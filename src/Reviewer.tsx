@@ -1,5 +1,6 @@
 import {
   MantineReactTable,
+  MRT_Cell,
   MRT_ColumnDef,
   useMantineReactTable,
 } from 'mantine-react-table';
@@ -15,9 +16,13 @@ export type Column<T> = {
 
 type Columns = Column<any>[]
 
-type Row<T extends {key: string}[]> = {
-  readonly [K in T[number]['key']]: string
+// TODO tighten types - we should be able to say that C extends Column,
+// and infer T.
+type Row<C extends {key: string}[]> = {
+  readonly [K in C[number]['key']]: Cell<unknown>
 }
+
+
 // Reviewer defines a component that surfaces any parsing errors to the user
 // and allows them to make modifications as necessary.
 export function Reviewer<Cols extends Columns>({
@@ -29,21 +34,37 @@ export function Reviewer<Cols extends Columns>({
   // length?
   data: Row<Cols>[],
 }) {
-  const columns = useMemo<MRT_ColumnDef<Row<Cols>>[]>(() => {
+  const columnDefs = useMemo<MRT_ColumnDef<Row<Cols>>[]>(() => {
     return inputColumns.map(c => ({
       accessorKey: c.key,
       header: c.header ?? c.key,
+      Edit: ({cell}) => {
+        const v = cell.getValue()
+        console.dir(cell)
+        // TODO this is how we can modify the appearance of individual cells.
+        return <div>{cell.getValue()}</div>
+      },
     }))
   },
     [inputColumns],
   )
 
+  // TODO NEXT: We need to separate the input data from the parsed data.
+  // That is, we need to: 1. Call the cell's parse functions on each input data,
+  // and 2. Surface errors.
+
   const table = useMantineReactTable({
-    columns,
+    columns: columnDefs,
     data,
     enableEditing: true,
     editDisplayMode: 'table',
   })
 
   return <MantineReactTable table={table} />
+}
+
+type CellID = string
+
+function getCellID(c: MRT_Cell): CellID {
+  return `${c.row.id}-${c.column.id}`
 }
