@@ -8,7 +8,7 @@ function App() {
         columns={[
             { key: "description", parse: (v) => ({status: 'ok', value: v})},
             { key: "quantity", parse: (v) => ({status: 'ok', value: parseInt(v)})},
-            { key: "date", parse: (v) => ({status: 'ok', value: new Date(v)})},
+            { key: "date", parse: (_) => ({status: 'error', message: "nope"})},
         ]}
         data={[
             {

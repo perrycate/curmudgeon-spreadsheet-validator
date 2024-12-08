@@ -41,6 +41,8 @@ export function Reviewer<Cols extends Columns>({
   const table = useMantineReactTable({
     columns,
     data,
+    enableEditing: true,
+    editDisplayMode: 'table',
   })
 
   return <MantineReactTable table={table} />
