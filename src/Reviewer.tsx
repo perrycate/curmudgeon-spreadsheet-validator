@@ -27,7 +27,7 @@ type Row<C extends {key: string}[]> = {
 // and allows them to make modifications as necessary.
 export function Reviewer<Cols extends Columns>({
   columns: inputColumns,
-  data
+  data: inputData,
 }: {
   columns: Cols,
   // For the future: I wonder if we could use types to enforce that these are the same
@@ -50,6 +50,8 @@ export function Reviewer<Cols extends Columns>({
   )
 
   // TODO NEXT: We need to separate the input data from the parsed data.
+  // Actually let's only pass in what we need to disply, and leave the logic to
+  // the parent.
   // That is, we need to: 1. Call the cell's parse functions on each input data,
   // and 2. Surface errors.
 
