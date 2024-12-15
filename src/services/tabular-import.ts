@@ -1,4 +1,4 @@
-import { ColumnTemplate, RowTemplate } from "../types";
+import { ColumnTemplate, dateColumn, makeOptional, numberColumn, RowTemplate, stringColumn } from "../types";
 
 type CSVTemplate = {
   columns: CSVTemplateColumn[];
@@ -63,4 +63,20 @@ export function parseRow<RT extends RowTemplate>(
   }) as RowResult<RT>
 
   return entries
+}
+
+const myTemplate = {
+  description: makeOptional(stringColumn({})),
+  startDate: dateColumn({}),
+  quantity: numberColumn({}),
+}
+
+// Holy shit it works.
+const a = parseRow({}, myTemplate)
+a.description.status
+if (a.description.status == "ok") {
+  // Note the inferred type hints.
+  console.log(a.description.value)
+} else {
+  console.log(a.description.message)
 }

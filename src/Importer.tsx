@@ -45,7 +45,8 @@ export function Importer<T extends RowTemplate>(props: ImporterProps<T>) {
 
               // Just testing.
               const firstRow = Object.fromEntries(Object.entries(d.rows[0].values).map(([k, v]) => [k, v.toString()]))
-              console.log(parseRow(firstRow, props.columns))
+              const a = parseRow(firstRow, props.columns)
+              console.log(a)
             }}
             template={config}
           />
