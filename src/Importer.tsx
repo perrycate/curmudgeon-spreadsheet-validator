@@ -1,5 +1,5 @@
 import { ReturnedRow, RowTemplate } from "./types";
-import { configFromTemplate } from "./services/tabular-import";
+import { configFromTemplate, parseRow } from "./services/tabular-import";
 import { Mapper } from "./Mapper";
 import { useMemo, useState } from "react";
 import { Reviewer } from "./Reviewer";
@@ -41,6 +41,11 @@ export function Importer<T extends RowTemplate>(props: ImporterProps<T>) {
               setMappedColumns(d.columns)
               setMappedData(d.rows.map(r => r.values))
               setPhase('reviewing')
+
+
+              // Just testing.
+              const firstRow = Object.fromEntries(Object.entries(d.rows[0].values).map(([k, v]) => [k, v.toString()]))
+              console.log(parseRow(firstRow, props.columns))
             }}
             template={config}
           />

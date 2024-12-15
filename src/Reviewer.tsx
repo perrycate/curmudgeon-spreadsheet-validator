@@ -5,13 +5,13 @@ import {
   useMantineReactTable,
 } from 'mantine-react-table';
 import { useMemo } from 'react';
-import { Cell} from './types';
+import { Result} from './types';
 
 
 export type Column<T> = {
   key: string
   header?: string
-  parse: (raw: string) => Cell<T>
+  parse: (raw: string) => Result<T>
 }
 
 type Columns = Column<any>[]
@@ -19,7 +19,7 @@ type Columns = Column<any>[]
 // TODO tighten types - we should be able to say that C extends Column,
 // and infer T.
 type Row<C extends {key: string}[]> = {
-  readonly [K in C[number]['key']]: Cell<unknown>
+  readonly [K in C[number]['key']]: Result<unknown>
 }
 
 

@@ -31,6 +31,7 @@ type TemplateColumn = {
 
 type MappedRow = {
   index: number;
+  // TODO do we ever actually get back numbers from tableflow?
   values: Record<string, number | string>;
 };
 
