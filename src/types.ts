@@ -11,6 +11,10 @@ export type ColumnTemplate<Type> = {
   description?: string
 
   // If true, users will be forced to map a column in the input file to this column.
+  //
+  // This is not the same as required vs optional - those pertain to the data returned
+  // at the end of the proces. A column that is required but is not mapped will be added
+  // after the mapping phase, and the user will be prompted to fill it out for each row.
   mustBeMapped?: boolean
 
   // Probably a bunch of optional hooks here for things like checking
