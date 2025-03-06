@@ -5,42 +5,46 @@ import {
   useMantineReactTable,
 } from 'mantine-react-table';
 import { useMemo } from 'react';
-import { Result} from './types';
+import { ColumnKey, ColumnTemplate, Parsed, ParseError, Result, RowTemplate } from './types';
 
 
-export type Column<T> = {
-  key: string
+// Describes a single cell during the review phase.
+type CellValue = {
+  // This will be used for figuring out which parse function to use, etc.
+  key: ColumnKey
+
+  // The human-readable name for this column.
   header?: string
-  parse: (raw: string) => Result<T>
+
+  // What is shown when editing.
+  rawValue: string
+
+  // What is shown when not editing.
+  // This may often be the same as the raw value.
+  displayValue: string
 }
 
-type Columns = Column<any>[]
-
-// TODO tighten types - we should be able to say that C extends Column,
-// and infer T.
-type Row<C extends {key: string}[]> = {
-  readonly [K in C[number]['key']]: Result<unknown>
-}
-
+type Row = CellValue[]
 
 // Reviewer defines a component that surfaces any parsing errors to the user
-// and allows them to make modifications as necessary.
-export function Reviewer<Cols extends Columns>({
-  columns: inputColumns,
-  data: inputData,
+// and prompts them to make modifications as necessary.
+export function Reviewer<RT extends RowTemplate>({
+  template,
+  data,
 }: {
-  columns: Cols,
+  template: RT
   // For the future: I wonder if we could use types to enforce that these are the same
   // length?
-  data: Row<Cols>[],
+  data: Row[]
 }) {
-  const columnDefs = useMemo<MRT_ColumnDef<Row<Cols>>[]>(() => {
-    return inputColumns.map(c => ({
+  const columnDefs = useMemo<MRT_ColumnDef<Row[]>>(() => {
+    return data.map(c => ({
       accessorKey: c.key,
       header: c.header ?? c.key,
       Edit: ({cell}) => {
         const v = cell.getValue()
         console.dir(cell)
+        console.dir(v)
         // TODO this is how we can modify the appearance of individual cells.
         return <div>{cell.getValue()}</div>
       },

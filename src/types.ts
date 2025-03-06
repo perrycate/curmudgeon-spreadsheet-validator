@@ -1,7 +1,9 @@
 import { ImporterProps } from "./Importer"
 
+type ColumnKey = string
+
 export type RowTemplate = {
-  [key: string]: ColumnTemplate<any>
+  [key: ColumnKey]: ColumnTemplate<any>
 }
 
 export type ColumnTemplate<Type> = {
@@ -20,7 +22,7 @@ export type ColumnTemplate<Type> = {
   mustBeMapped?: boolean
 
   // Extracts the given type from a raw string value.
-  parse: (cellValue: string) => Cell<Type> | CellParseError
+  parse: (cellValue: string) => Parsed<Type> | ParseError
 
   // Probably a bunch of optional hooks here for things like checking
   // the data looks a certain way and prompting the user if it doesn't.
@@ -30,7 +32,7 @@ export type ColumnTemplate<Type> = {
   // that type.
 }
 
-export type Cell<Type> = {
+export type Parsed<Type> = {
   status: 'ok'
 
   // The parsed value of the cell.
@@ -43,7 +45,7 @@ export type Cell<Type> = {
   displayValue?: string
 }
 
-export type CellParseError = {
+export type ParseError = {
   status: 'error'
 
   // The error that should be shown to the user.
@@ -53,14 +55,14 @@ export type CellParseError = {
 type OptionalColumn<T> = ColumnTemplate<T> & { optional: true }
 
 // Unwraps the type that should be returned from a column template.
-type GetValType<T, C extends ColumnTemplate<T>> = C extends OptionalColumn<T> ? T | null : T
+export type Result<T, C extends ColumnTemplate<T>> = C extends OptionalColumn<T> ? T | null : T
 
 // ReturnedRow unwraps each column type in a RowTemplate.
 //
 // In other words, this describes the type the caller should expect to recieve
 // at the end of an import operation, for some row template.
 export type ReturnedRow<T extends RowTemplate> = {
-  readonly [Property in keyof T]: T[Property] extends ColumnTemplate<infer ReturnType> ? GetValType<ReturnType, T[Property]> : never
+  readonly [Property in keyof T]: T[Property] extends ColumnTemplate<infer ReturnType> ? Result<ReturnType, T[Property]> : never
 }
 
 export function makeOptional<T>(c: ColumnTemplate<T>): OptionalColumn<T> {

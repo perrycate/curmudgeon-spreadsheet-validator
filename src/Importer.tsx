@@ -2,12 +2,12 @@ import { ReturnedRow, RowTemplate } from "./types";
 import { configFromTemplate, parseRow } from "./services/tabular-import";
 import { Mapper } from "./Mapper";
 import { useMemo, useState } from "react";
-import { Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
  * 2. Add some primitives for showing errors in the review phase.
  * 2.5. Add logic for parsing rich types, and surfacing errors in the review phase (not yet correcting)
+ * 3. Handle optional values.
  * 4.5 Add mechanism for adding required but non-mapped columns.
  * 5. Figure out what primitives we need for allowing the user to actually edit/correct items during review.
  */
@@ -21,15 +21,20 @@ export type ImporterProps<T extends RowTemplate> = {
 
 type Phase = 'mapping' | 'reviewing'
 
+// A "row" of data after the mapping phase.
+// Every mapped column has a key in the record. (Idea: Can we enforce this with types?)
 type MappedData = Record<string, number | string>
+
+// Matches the column key (required by the row template) to the name of the column
+// in the input file (from headers).
 type MappedColumn = { key: string, name: string }
 
 export function Importer<T extends RowTemplate>(props: ImporterProps<T>) {
   const config = useMemo(() => configFromTemplate(props.columns), [props.columns])
 
   const [phase, setPhase] = useState<Phase>('mapping')
-  const [mappedColumns, setMappedColumns] = useState<MappedColumn[] | null>(null);
-  const [mappedData, setMappedData] = useState<MappedData[] | null>(null);
+  const [_mappedColumns, setMappedColumns] = useState<MappedColumn[] | null>(null);
+  const [_mappedData, setMappedData] = useState<MappedData[] | null>(null);
 
   switch (phase) {
     case 'mapping':
