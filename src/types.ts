@@ -1,3 +1,5 @@
+import { ImporterProps } from "./Importer"
+
 export type RowTemplate = {
   [key: string]: ColumnTemplate<any>
 }
@@ -17,25 +19,31 @@ export type ColumnTemplate<Type> = {
   // after the mapping phase, and the user will be prompted to fill it out for each row.
   mustBeMapped?: boolean
 
+  // Extracts the given type from a raw string value.
+  parse: (cellValue: string) => Cell<Type> | CellParseError
+
   // Probably a bunch of optional hooks here for things like checking
   // the data looks a certain way and prompting the user if it doesn't.
   //
   // I'm imagining a world where users can create their own novel types
   // and specify the functions necessary to parse an input string into
   // that type.
-  parse: (cellValue: string) => Cell<Type>
 }
 
 export type Cell<Type> = {
   status: 'ok'
 
   // The parsed value of the cell.
+  //
+  // This is the value passed to the caller at the end of the import process.
   value: Type
 
   // The value that should be shown to the user.
   // If unset, the value will be directly cast as a string.
   displayValue?: string
-} | {
+}
+
+export type CellParseError = {
   status: 'error'
 
   // The error that should be shown to the user.
@@ -44,9 +52,13 @@ export type Cell<Type> = {
 
 type OptionalColumn<T> = ColumnTemplate<T> & { optional: true }
 
+// Unwraps the type that should be returned from a column template.
 type GetValType<T, C extends ColumnTemplate<T>> = C extends OptionalColumn<T> ? T | null : T
 
-// ReturnedRow "unwraps" each column type in a RowTemplate.
+// ReturnedRow unwraps each column type in a RowTemplate.
+//
+// In other words, this describes the type the caller should expect to recieve
+// at the end of an import operation, for some row template.
 export type ReturnedRow<T extends RowTemplate> = {
   readonly [Property in keyof T]: T[Property] extends ColumnTemplate<infer ReturnType> ? GetValType<ReturnType, T[Property]> : never
 }
@@ -80,7 +92,7 @@ export function numberColumn(c: Omit<ColumnTemplate<number>, "parse">): ColumnTe
   return {
     ...c,
     // TODO error handling etc.
-    // Probably a library to handle all the edge cases, too.
+    // Probably a parsing library to handle all the edge cases, too.
     parse: (s) => ({status: 'ok', value: parseFloat(s)}),
   }
 }
@@ -94,16 +106,9 @@ const myTemplate = {
   quantity: numberColumn({}),
 }
 
-export type ImporterProps<T extends RowTemplate> = {
-  rowFormat: T
-
-  // Called once the input has been validated.
-  onSuccess: (rows: ReturnedRow<T>[]) => void
-}
-
 // These are the args we'd pass into our importer react component.
 const _myImporterArgs: ImporterProps<typeof myTemplate> = {
-  rowFormat: myTemplate,
+  columns: myTemplate,
   onSuccess: (rows) => {
     rows.map(r => {
       console.log(r.description) // r.description is a string | null!
