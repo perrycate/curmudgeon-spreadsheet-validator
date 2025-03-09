@@ -7,6 +7,7 @@ import { RawRow, Reviewer } from "./Reviewer";
 /**
  * Rough plan of attack:
  * 2. Add some primitives for showing errors in the review phase.
+ * 2.3 Improve debugging - links to each page, pass data in url or something.
  * 2.5 Figure out what primitives we need for allowing the user to actually edit/correct items during review.
  * 3. Handle optional values.
  * 4.5 Add mechanism for adding required but non-mapped columns.
