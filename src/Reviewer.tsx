@@ -13,9 +13,6 @@ type RawRow<RT extends RowTemplate> = Record<keyof RT, string>
 
 // Describes a single cell during the review phase.
 type CellValue = {
-  // This will be used for figuring out which parse function to use, etc.
-  key: ColumnKey
-
   // What is shown when editing.
   rawValue: string
 
@@ -27,7 +24,9 @@ type CellValue = {
 }
 
 // Row data post-parsing.
-type Row = CellValue[]
+type Row<RT extends RowTemplate> = {
+  [_ in keyof RT]: CellValue
+}
 
 // Reviewer defines a component that surfaces any parsing errors to the user
 // and prompts them to make modifications as necessary.
@@ -41,12 +40,12 @@ export function Reviewer<RT extends RowTemplate>({
   data: RawRow<RT>[]
   // TODO: Use the same column order as the input file.
 }) {
-  const columnDefs = useMemo<MRT_ColumnDef<Row>[]>(() => {
+  const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
     return Object.entries(template).map(([key, colTemplate], idx) => {
       return {
         id: key,
         header: colTemplate.label ?? key,
-        accessorFn: (row: Row) => row[idx].displayValue,
+        accessorFn: (row: Row<RT>) => row[idx].displayValue,
         // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
       }
     })
@@ -57,26 +56,28 @@ export function Reviewer<RT extends RowTemplate>({
   // We should eventually probably factor out the parsing logic from the
   // display functionality, I'm just lumping everything in here for now while I figure
   // out what it looks like.
-  const parsedData = useMemo<Row[]>(() => {
+  const parsedData = useMemo<Row<RT>[]>(() => {
     return inputData.map((rawRow) => {
-      return Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
-        const parsed = template[key].parse(rawValue)
-        switch (parsed.status) {
-          case "ok":
-            return {
-              key,
-              rawValue: parsed.value,
-              displayValue: parsed.displayValue ?? parsed.value,
-            }
-          case "error":
-            return {
-              key,
-              rawValue: parsed.message,
-              displayValue: parsed.message,
-              // TODO: Indicate errors.
-            }
-        }
-      })
+      const parsedRow = Object.fromEntries(
+        Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
+          const parsed = template[key].parse(rawValue)
+          switch (parsed.status) {
+            case "ok":
+              return [key, {
+                rawValue: parsed.value,
+                displayValue: parsed.displayValue ?? parsed.value,
+              }]
+            case "error":
+              return [key, {
+                rawValue: parsed.message,
+                displayValue: parsed.message,
+                // TODO: Indicate errors.
+              }]
+          }
+        })
+      )
+
+      return parsedRow as Row<RT>
     })
   }, [inputData, template])
 
@@ -86,7 +87,7 @@ export function Reviewer<RT extends RowTemplate>({
 
   const table = useMantineReactTable({
     columns: columnDefs,
-    parsedData,
+    data: parsedData,
     enableEditing: true,
     editDisplayMode: 'table',
   })
