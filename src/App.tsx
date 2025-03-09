@@ -16,6 +16,7 @@ function App() {
             console.log(r.description)
           })
         }}
+        debugMode={true}
       />
     </>
   )

@@ -1,8 +1,6 @@
 import { ReturnedRow, RowTemplate } from "./types";
-import { parseRow } from "./services/tabular-import";
 import { Mapper } from "./Mapper";
-import { useState } from "react";
-import { RawRow, Reviewer } from "./Reviewer";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 /**
  * Rough plan of attack:
@@ -19,50 +17,53 @@ export type ImporterProps<T extends RowTemplate> = {
 
   // Called once the input has been validated.
   onSuccess: (rows: ReturnedRow<T>[]) => void
+
+  // If true, routes will be set up for each individual phase, and data
+  // will be passed between phases via url params.
+  //
+  // This is probably not what we'll want when actually using this (passing data
+  // between phases via the url seems sketchy/fragile), but it should make manual
+  // testing/debugging a lot easier.
+  debugMode?: boolean
 }
 
-type Phase = 'mapping' | 'reviewing'
-
-// Matches the column key (required by the row template) to the name of the column
-// in the input file (from headers).
-type MappedColumn = { key: string, name: string }
-
 export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
+  const navigate = useNavigate()
 
-  const [phase, setPhase] = useState<Phase>('mapping')
-  const [_mappedColumns, setMappedColumns] = useState<MappedColumn[] | null>(null);
-  const [mappedData, setMappedData] = useState<RawRow<RT>[] | null>(null);
-
-  switch (phase) {
-    case 'mapping':
-      return (
-          <Mapper
-            template={props.columns}
-            isModal={false}
-            darkMode={true}
-            onComplete={(d) => {
-              setMappedColumns(d.columns)
-              setMappedData(d.rows.map(r => r.values))
-              setPhase('reviewing')
-
-
-              // Just testing.
-              const firstRow = Object.fromEntries(Object.entries(d.rows[0].values).map(([k, v]) => [k, v.toString()]))
-              const a = parseRow(firstRow, props.columns)
-              console.log(a)
-            }}
-          />
-      );
-    case 'reviewing':
-      if (mappedData == null) {
-        return null
-      }
-
-      return (
-        <Reviewer
-               template={props.columns}
-               data={mappedData}
-             />
-      )
+  if (!props.debugMode) {
+    return "This is dev only for now, don't actually use this. lol."
   }
+
+  return (
+    <>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Mapper
+              template={props.columns}
+              isModal={false}
+              darkMode={true}
+              onComplete={(d) => {
+                const mappedData = d.rows.map(r => r.values)
+
+                navigate(`/review?data=${encodeURIComponent(JSON.stringify(mappedData))}`)
+              }}
+            />
+          }
+        />
+        <Route
+          path="/review"
+          element={
+            <ReviewerWrapper />
+          }
+        />
+        <Route path="*" element={"Route not found."} />
+      </Routes>
+    </>
+  )
+}
+
+function ReviewerWrapper() {
+  return null
 }
