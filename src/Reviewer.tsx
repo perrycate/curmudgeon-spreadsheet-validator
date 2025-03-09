@@ -37,26 +37,18 @@ export function Reviewer<RT extends RowTemplate>({
   // length?
   data: Row[]
 }) {
-  const columnDefs = useMemo<MRT_ColumnDef<Row[]>>(() => {
-    return data.map(c => ({
-      accessorKey: c.key,
-      header: c.header ?? c.key,
-      Edit: ({cell}) => {
-        const v = cell.getValue()
-        console.dir(cell)
-        console.dir(v)
-        // TODO this is how we can modify the appearance of individual cells.
-        return <div>{cell.getValue()}</div>
-      },
-    }))
+  const columnDefs = useMemo<MRT_ColumnDef<Row>[]>(() => {
+    return Object.entries(template).map(([key, _colTemplate]) => {
+      return {
+        header: key,
+      }
+    })
   },
-    [inputColumns],
+    [template],
   )
 
-  // TODO NEXT: We need to separate the input data from the parsed data.
-  // Actually let's only pass in what we need to display, and leave the logic to
-  // the parent.
-  // That is, we need to: 1. Call the cell's parse functions on each input data,
+  // TODO NEXT:
+  // We need to: 1. Call the cell's parse functions on each input data,
   // and 2. Surface errors.
 
   const table = useMantineReactTable({
