@@ -85,8 +85,7 @@ export function Reviewer<RT extends RowTemplate>({
   }, [inputData, template])
 
   // TODO NEXT:
-  // We need to: 1. Call the cell's parse functions on each input data,
-  // and 2. Surface errors.
+  // 2. Surface errors.
 
   const table = useMantineReactTable({
     columns: columnDefs,
