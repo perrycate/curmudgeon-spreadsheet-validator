@@ -1,15 +1,17 @@
 import { ReturnedRow, RowTemplate } from "./types";
-import { configFromTemplate } from "./services/tabular-import";
+import { parseRow } from "./services/tabular-import";
 import { Mapper } from "./Mapper";
-import { useMemo, useState } from "react";
-import { Reviewer } from "./Reviewer";
+import { useState } from "react";
+import { RawRow, Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
- * 3. Add some primitives for showing errors in the review phase.
- * 4. Add logic for parsing rich types, and surfacing errors in the review phase (not yet correcting)
+ * 2. Add some primitives for showing errors in the review phase.
+ * 2.3 Improve debugging - links to each page, pass data in url or something.
+ * 2.5 Figure out what primitives we need for allowing the user to actually edit/correct items during review.
+ * 3. Handle optional values.
  * 4.5 Add mechanism for adding required but non-mapped columns.
- * 5. Figure out what primitives we need for allowing the user to actually edit/correct items during review.
+ * 5. Add Picklist support.
  */
 
 export type ImporterProps<T extends RowTemplate> = {
@@ -21,35 +23,46 @@ export type ImporterProps<T extends RowTemplate> = {
 
 type Phase = 'mapping' | 'reviewing'
 
-type MappedData = Record<string, number | string>
+// Matches the column key (required by the row template) to the name of the column
+// in the input file (from headers).
 type MappedColumn = { key: string, name: string }
 
-export function Importer<T extends RowTemplate>(props: ImporterProps<T>) {
-  const config = useMemo(() => configFromTemplate(props.columns), [props.columns])
+export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
 
   const [phase, setPhase] = useState<Phase>('mapping')
-  const [mappedColumns, setMappedColumns] = useState<MappedColumn[] | null>(null);
-  const [mappedData, setMappedData] = useState<MappedData[] | null>(null);
+  const [_mappedColumns, setMappedColumns] = useState<MappedColumn[] | null>(null);
+  const [mappedData, setMappedData] = useState<RawRow<RT>[] | null>(null);
 
   switch (phase) {
     case 'mapping':
       return (
           <Mapper
+            template={props.columns}
             isModal={false}
             darkMode={true}
             onComplete={(d) => {
               setMappedColumns(d.columns)
               setMappedData(d.rows.map(r => r.values))
               setPhase('reviewing')
+
+
+              // Just testing.
+              const firstRow = Object.fromEntries(Object.entries(d.rows[0].values).map(([k, v]) => [k, v.toString()]))
+              const a = parseRow(firstRow, props.columns)
+              console.log(a)
             }}
-            template={config}
           />
       );
     case 'reviewing':
-      return (mappedColumns && mappedData ?
-        <Reviewer columns={mappedColumns} data={mappedData} />
-        : null
+      if (mappedData == null) {
+        return null
+      }
+
+      return (
+        <Reviewer
+               template={props.columns}
+               data={mappedData}
+             />
       )
   }
-
 }

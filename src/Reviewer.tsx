@@ -1,35 +1,104 @@
 import {
   MantineReactTable,
+  MRT_Cell,
   MRT_ColumnDef,
   useMantineReactTable,
 } from 'mantine-react-table';
 import { useMemo } from 'react';
+import { ColumnKey, RowTemplate } from './types';
 
 
-export type ReviewerProps = {
-    columns: {key: string, name: string}[]
-    data: RawRow[]
+// An input row, before any attempts at parsing.
+export type RawRow<RT extends RowTemplate> = Record<keyof RT, string>
+
+// Describes a single cell during the review phase.
+type CellValue = {
+  // What is shown when editing.
+  rawValue: string
+
+  // What is shown when not editing.
+  // This may often be the same as the raw value.
+  displayValue: string
+
+  // TODO errors and stuff.
 }
 
-export type RawRow = Record<string, number | string>
+// Row data post-parsing.
+type Row<RT extends RowTemplate> = {
+  [_ in keyof RT]: CellValue
+}
 
-export function Reviewer({
-    columns: userColumns,
-    data
-}: ReviewerProps) {
-    const columns = useMemo<MRT_ColumnDef<RawRow>[]>(() => {
-        return userColumns.map(c => ({
-            accessorKey: c.key,
-            header: c.name,
-        }))
-    },
-    [userColumns],
-    )
-
-    const table = useMantineReactTable({
-        columns,
-        data,
+// Reviewer defines a component that surfaces any parsing errors to the user
+// and prompts them to make modifications as necessary.
+export function Reviewer<RT extends RowTemplate>({
+  template,
+  data: inputData,
+}: {
+  template: RT
+  // For the future: I wonder if we could use types to enforce that these are the same
+  // length?
+  data: RawRow<RT>[]
+  // TODO: Use the same column order as the input file.
+}) {
+  const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
+    return Object.entries(template).map(([key, colTemplate]) => {
+      return {
+        id: key,
+        header: colTemplate.label ?? key,
+        accessorFn: (row: Row<RT>) => {
+          debugger;
+          return row[key].displayValue
+        },
+        // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
+      }
     })
+  },
+    [template],
+  )
 
-    return <MantineReactTable table={table} />
+  // We should eventually probably factor out the parsing logic from the
+  // display functionality, I'm just lumping everything in here for now while I figure
+  // out what it looks like.
+  const parsedData = useMemo<Row<RT>[]>(() => {
+    return inputData.map((rawRow) => {
+      const parsedRow = Object.fromEntries(
+        Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
+          const parsed = template[key].parse(rawValue)
+          switch (parsed.status) {
+            case "ok":
+              return [key, {
+                rawValue: parsed.value,
+                displayValue: parsed.displayValue ?? parsed.value,
+              }]
+            case "error":
+              return [key, {
+                rawValue: parsed.message,
+                displayValue: parsed.message,
+                // TODO: Indicate errors.
+              }]
+          }
+        })
+      )
+
+      return parsedRow as Row<RT>
+    })
+  }, [inputData, template])
+
+  // TODO NEXT:
+  // 2. Surface errors.
+
+  const table = useMantineReactTable({
+    columns: columnDefs,
+    data: parsedData,
+    enableEditing: true,
+    editDisplayMode: 'table',
+  })
+
+  return <MantineReactTable table={table} />
+}
+
+type CellID = string
+
+function getCellID(c: MRT_Cell): CellID {
+  return `${c.row.id}-${c.column.id}`
 }
