@@ -5,7 +5,6 @@ import { Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
- * 1. Improve debugging - links to each page, pass data in url or something.
  * 2. Add some primitives for showing errors in the review phase.
  * 2.5 Figure out what primitives we need for allowing the user to actually edit/correct items during review.
  * 3. Handle optional values.
