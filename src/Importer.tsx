@@ -1,6 +1,7 @@
 import { ReturnedRow, RowTemplate } from "./types";
 import { Mapper } from "./Mapper";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
+import { Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
@@ -55,7 +56,7 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
         <Route
           path="/review"
           element={
-            <ReviewerWrapper />
+            <ReviewerWrapper template={props.columns}/>
           }
         />
         <Route path="*" element={"Route not found."} />
@@ -64,6 +65,24 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
   )
 }
 
-function ReviewerWrapper() {
-  return null
+function ReviewerWrapper<RT extends RowTemplate>({
+  template,
+}: {
+  template: RT,
+}) {
+  const [searchParams, _setSearchParams] = useSearchParams()
+
+  const encodedData = searchParams.get("data")
+  if (encodedData === null) {
+    return "No data"
+  }
+
+  const data = JSON.parse(decodeURIComponent(encodedData))
+
+  return (
+   <Reviewer
+     template={template}
+     data={data}
+   />
+  )
 }
