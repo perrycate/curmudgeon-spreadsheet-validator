@@ -55,7 +55,10 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
         <Route
           path="/review"
           element={
+            <>
+              <a href="/">Start over</a>
             <ReviewerWrapper template={props.columns}/>
+            </>
           }
         />
         <Route path="*" element={"Route not found."} />
