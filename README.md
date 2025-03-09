@@ -41,3 +41,6 @@ why all the other existing tools are unsatisfactory to me.
 
 In the unlikely event that I arrive at something useful, I will remove this message
 and replace it with some instructions.
+
+## Dev Notes
+`npm run dev`

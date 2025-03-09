@@ -5,11 +5,11 @@ import {
   useMantineReactTable,
 } from 'mantine-react-table';
 import { useMemo } from 'react';
-import { ColumnKey, ColumnTemplate, Parsed, ParseError, Result, RowTemplate } from './types';
+import { ColumnKey, RowTemplate } from './types';
 
 
 // An input row, before any attempts at parsing.
-type RawRow<RT extends RowTemplate> = Record<keyof RT, string>
+export type RawRow<RT extends RowTemplate> = Record<keyof RT, string>
 
 // Describes a single cell during the review phase.
 type CellValue = {
@@ -41,11 +41,14 @@ export function Reviewer<RT extends RowTemplate>({
   // TODO: Use the same column order as the input file.
 }) {
   const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
-    return Object.entries(template).map(([key, colTemplate], idx) => {
+    return Object.entries(template).map(([key, colTemplate]) => {
       return {
         id: key,
         header: colTemplate.label ?? key,
-        accessorFn: (row: Row<RT>) => row[idx].displayValue,
+        accessorFn: (row: Row<RT>) => {
+          debugger;
+          return row[key].displayValue
+        },
         // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
       }
     })

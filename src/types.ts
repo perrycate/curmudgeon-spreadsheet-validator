@@ -1,5 +1,3 @@
-import { ImporterProps } from "./Importer"
-
 export type ColumnKey = string
 
 export type RowTemplate = {
@@ -101,6 +99,7 @@ export function numberColumn(c: Omit<ColumnTemplate<number>, "parse">): ColumnTe
 
 // Examples / thinking out loud:
 
+/*
 // Let's say a caller defines a template as such:
 const myTemplate = {
   description: makeOptional(stringColumn({})),
@@ -109,7 +108,7 @@ const myTemplate = {
 }
 
 // These are the args we'd pass into our importer react component.
-const _myImporterArgs: ImporterProps<typeof myTemplate> = {
+const _: ImporterProps<typeof myTemplate> = {
   columns: myTemplate,
   onSuccess: (rows) => {
     rows.map(r => {
@@ -120,4 +119,4 @@ const _myImporterArgs: ImporterProps<typeof myTemplate> = {
     })
   }
 }
-
+*/

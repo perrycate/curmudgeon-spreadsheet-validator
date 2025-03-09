@@ -1,7 +1,8 @@
 import { ReturnedRow, RowTemplate } from "./types";
-import { configFromTemplate, parseRow } from "./services/tabular-import";
+import { parseRow } from "./services/tabular-import";
 import { Mapper } from "./Mapper";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { RawRow, Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
@@ -21,25 +22,21 @@ export type ImporterProps<T extends RowTemplate> = {
 
 type Phase = 'mapping' | 'reviewing'
 
-// A "row" of data after the mapping phase.
-// Every mapped column has a key in the record. (Idea: Can we enforce this with types?)
-type MappedData = Record<string, number | string>
-
 // Matches the column key (required by the row template) to the name of the column
 // in the input file (from headers).
 type MappedColumn = { key: string, name: string }
 
-export function Importer<T extends RowTemplate>(props: ImporterProps<T>) {
-  const config = useMemo(() => configFromTemplate(props.columns), [props.columns])
+export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
 
   const [phase, setPhase] = useState<Phase>('mapping')
   const [_mappedColumns, setMappedColumns] = useState<MappedColumn[] | null>(null);
-  const [_mappedData, setMappedData] = useState<MappedData[] | null>(null);
+  const [mappedData, setMappedData] = useState<RawRow<RT>[] | null>(null);
 
   switch (phase) {
     case 'mapping':
       return (
           <Mapper
+            template={props.columns}
             isModal={false}
             darkMode={true}
             onComplete={(d) => {
@@ -53,11 +50,18 @@ export function Importer<T extends RowTemplate>(props: ImporterProps<T>) {
               const a = parseRow(firstRow, props.columns)
               console.log(a)
             }}
-            template={config}
           />
       );
     case 'reviewing':
-      return null // TODO stitch together.
-  }
+      if (mappedData == null) {
+        return null
+      }
 
+      return (
+        <Reviewer
+               template={props.columns}
+               data={mappedData}
+             />
+      )
+  }
 }
