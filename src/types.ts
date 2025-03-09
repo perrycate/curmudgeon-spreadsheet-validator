@@ -1,6 +1,6 @@
 import { ImporterProps } from "./Importer"
 
-type ColumnKey = string
+export type ColumnKey = string
 
 export type RowTemplate = {
   [key: ColumnKey]: ColumnTemplate<any>

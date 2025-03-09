@@ -6,10 +6,10 @@ import { useMemo, useState } from "react";
 /**
  * Rough plan of attack:
  * 2. Add some primitives for showing errors in the review phase.
- * 2.5. Add logic for parsing rich types, and surfacing errors in the review phase (not yet correcting)
+ * 2.5 Figure out what primitives we need for allowing the user to actually edit/correct items during review.
  * 3. Handle optional values.
  * 4.5 Add mechanism for adding required but non-mapped columns.
- * 5. Figure out what primitives we need for allowing the user to actually edit/correct items during review.
+ * 5. Add Picklist support.
  */
 
 export type ImporterProps<T extends RowTemplate> = {
