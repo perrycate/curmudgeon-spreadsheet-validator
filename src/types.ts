@@ -91,9 +91,17 @@ export function dateColumn(c: Omit<ColumnTemplate<Date>, "parse">): ColumnTempla
 export function numberColumn(c: Omit<ColumnTemplate<number>, "parse">): ColumnTemplate<number> {
   return {
     ...c,
-    // TODO error handling etc.
-    // Probably a parsing library to handle all the edge cases, too.
-    parse: (s) => ({status: 'ok', value: parseFloat(s)}),
+    // Long term, we may want to use a parsing library to handle all the edge cases that are
+    // bound to happen.
+    parse: (s) => {
+      const val = parseFloat(s)
+
+      if (isNaN(val)) {
+        return {status: 'error', message: `${s} is not a number.`}
+      }
+
+      return {status: 'ok', value: parseFloat(s)}
+    },
   }
 }
 

@@ -96,9 +96,3 @@ export function Reviewer<RT extends RowTemplate>({
 
   return <MantineReactTable table={table} />
 }
-
-type CellID = string
-
-function getCellID(c: MRT_Cell): CellID {
-  return `${c.row.id}-${c.column.id}`
-}
