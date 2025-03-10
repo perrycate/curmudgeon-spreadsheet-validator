@@ -52,7 +52,7 @@ export function Reviewer<RT extends RowTemplate>({
           switch (parsed.status) {
             case "ok":
               return [key, {
-                rawValue: parsed.value,
+                rawValue: rawValue,
                 displayValue: parsed.displayValue ?? parsed.value,
               }]
             case "error":
@@ -76,19 +76,19 @@ export function Reviewer<RT extends RowTemplate>({
         id: key,
         header: colTemplate.label ?? key,
         accessorFn: (row: Row<RT>) => {
-          return row[key].displayValue
+          return row[key].rawValue
         },
         Cell: ({row}) => {
-          const cellState = parsedData[row.index][key]
+          const cell = parsedData[row.index][key]
 
           return (
             <Stack spacing="xs">
               <Text>
-                {cellState.displayValue}
+                {cell.displayValue}
               </Text>
-              {cellState.error ?
+              {cell.error ?
                 <Text color="red">
-                  {cellState.error.message}
+                  {cell.error.message}
                 </Text>
               : null}
             </Stack>
