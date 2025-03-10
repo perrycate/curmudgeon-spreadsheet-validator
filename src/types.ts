@@ -84,7 +84,7 @@ export function dateColumn(c: Omit<ColumnTemplate<Date>, "parse">): ColumnTempla
   return {
     ...c,
     parse: (s) => {
-      // TODO datejs probably.
+      // Long term, should probably use dateJS?
       const val = new Date(s)
 
       if (isNaN(val.valueOf())) {
