@@ -5,6 +5,7 @@ import {
 } from 'mantine-react-table';
 import { useMemo } from 'react';
 import { ColumnKey, ParseError, RowTemplate } from './types';
+import { Stack, Text } from '@mantine/core';
 
 
 // An input row, before any attempts at parsing.
@@ -77,6 +78,22 @@ export function Reviewer<RT extends RowTemplate>({
         accessorFn: (row: Row<RT>) => {
           return row[key].displayValue
         },
+        Cell: ({row}) => {
+          const cellState = parsedData[row.index][key]
+
+          return (
+            <Stack spacing="xs">
+              <Text>
+                {cellState.displayValue}
+              </Text>
+              {cellState.error ?
+                <Text color="red">
+                  {cellState.error.message}
+                </Text>
+              : null}
+            </Stack>
+          )
+        },
         mantineEditTextInputProps: ({row}) => {
           const val = parsedData[row.index][key]
 
@@ -102,7 +119,7 @@ export function Reviewer<RT extends RowTemplate>({
     columns: columnDefs,
     data: parsedData,
     enableEditing: true,
-    editDisplayMode: 'table',
+    editDisplayMode: 'cell',
   })
 
   return <MantineReactTable table={table} />
