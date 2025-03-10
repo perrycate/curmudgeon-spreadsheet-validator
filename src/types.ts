@@ -97,7 +97,7 @@ export function numberColumn(c: Omit<ColumnTemplate<number>, "parse">): ColumnTe
       const val = parseFloat(s)
 
       if (isNaN(val)) {
-        return {status: 'error', message: `${s} is not a number.`}
+        return {status: 'error', message: `"${s}" is not a number.`}
       }
 
       return {status: 'ok', value: parseFloat(s)}

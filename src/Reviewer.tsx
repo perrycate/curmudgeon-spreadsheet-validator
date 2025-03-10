@@ -1,11 +1,10 @@
 import {
   MantineReactTable,
-  MRT_Cell,
   MRT_ColumnDef,
   useMantineReactTable,
 } from 'mantine-react-table';
 import { useMemo } from 'react';
-import { ColumnKey, RowTemplate } from './types';
+import { ColumnKey, ParseError, RowTemplate } from './types';
 
 
 // An input row, before any attempts at parsing.
@@ -20,7 +19,7 @@ type CellValue = {
   // This may often be the same as the raw value.
   displayValue: string
 
-  // TODO errors and stuff.
+  error?: ParseError
 }
 
 // Row data post-parsing.
@@ -40,21 +39,6 @@ export function Reviewer<RT extends RowTemplate>({
   data: RawRow<RT>[]
   // TODO: Use the same column order as the input file.
 }) {
-  const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
-    return Object.entries(template).map(([key, colTemplate]) => {
-      return {
-        id: key,
-        header: colTemplate.label ?? key,
-        accessorFn: (row: Row<RT>) => {
-          debugger;
-          return row[key].displayValue
-        },
-        // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
-      }
-    })
-  },
-    [template],
-  )
 
   // We should eventually probably factor out the parsing logic from the
   // display functionality, I'm just lumping everything in here for now while I figure
@@ -72,9 +56,9 @@ export function Reviewer<RT extends RowTemplate>({
               }]
             case "error":
               return [key, {
-                rawValue: parsed.message,
-                displayValue: parsed.message,
-                // TODO: Indicate errors.
+                rawValue: rawValue,
+                displayValue: rawValue,
+                error: parsed,
               }]
           }
         })
@@ -83,6 +67,33 @@ export function Reviewer<RT extends RowTemplate>({
       return parsedRow as Row<RT>
     })
   }, [inputData, template])
+
+
+  const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
+    return Object.entries(template).map(([key, colTemplate]) => {
+      return {
+        id: key,
+        header: colTemplate.label ?? key,
+        accessorFn: (row: Row<RT>) => {
+          return row[key].displayValue
+        },
+        mantineEditTextInputProps: ({row}) => {
+          const val = parsedData[row.index][key]
+
+          if (val.error) {
+            return {
+              error: val.error.message,
+            }
+          }
+
+          return {}
+        },
+        // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
+      }
+    })
+  },
+    [template],
+  )
 
   // TODO NEXT:
   // 2. Surface errors.

@@ -10,6 +10,10 @@ import { Reviewer } from "./Reviewer";
  * 3. Handle optional values.
  * 4.5 Add mechanism for adding required but non-mapped columns.
  * 5. Add Picklist support.
+ * 6. Improve styling.
+ *    * Errors shouldn't change cell height. (Popup, maybe?)
+ *    * Highlight error cells?
+ * 10. Make this hackable. Callers should be able to override chunks.
  */
 
 export type ImporterProps<T extends RowTemplate> = {
