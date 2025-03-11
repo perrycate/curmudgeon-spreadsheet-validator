@@ -27,38 +27,38 @@ export function Mapper<RT extends RowTemplate>(props: MapperProps<RT>) {
   />
 }
 
-type CSVTemplate = {
+interface CSVTemplate {
   columns: CSVTemplateColumn[];
 }
 
 // The per-column configuration csv-template expects.
-type CSVTemplateColumn = {
+interface CSVTemplateColumn {
   name: string;
   key: string;
   description?: string;
   required?: boolean;
   // The casing is off here because that's what csv-template expects. Go figure.
   suggested_mappings?: string[];
-};
+}
 
-type MappedRow<RT extends RowTemplate> = {
+interface MappedRow<RT extends RowTemplate> {
   index: number;
   values: Record<keyof RT, string>;
-};
+}
 
-type OnCompleteData<RT extends RowTemplate> = {
+interface OnCompleteData<RT extends RowTemplate> {
   num_rows: number
   num_columns: number
   columns: { key: string, name: string }[]
   rows: MappedRow<RT>[],
 }
 
-type ModalParams = {
+interface ModalParams {
   isModal?: boolean;
   modalIsOpen?: boolean;
   modalOnCloseTriggered?: () => void;
   modalCloseOnOutsideClick?: boolean;
-};
+}
 
 
 function configFromTemplate(t: RowTemplate): CSVTemplate {
