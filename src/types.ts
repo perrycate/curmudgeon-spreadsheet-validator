@@ -83,17 +83,37 @@ export function stringColumn(c: Omit<ColumnTemplate<string>, "parse">): ColumnTe
 export function dateColumn(c: Omit<ColumnTemplate<Date>, "parse">): ColumnTemplate<Date> {
   return {
     ...c,
-    // TODO datejs probably.
-    parse: (s) => ({status: 'ok', value: new Date(s)}),
+    parse: (s) => {
+      // Long term, should probably use dateJS?
+      const val = new Date(s)
+
+      if (isNaN(val.valueOf())) {
+        return {status: 'error', message: `"${s}" is not a valid date.`}
+      }
+
+      return {
+        status: 'ok',
+        value: val,
+        displayValue: val.toString()
+      }
+    }
   }
 }
 
 export function numberColumn(c: Omit<ColumnTemplate<number>, "parse">): ColumnTemplate<number> {
   return {
     ...c,
-    // TODO error handling etc.
-    // Probably a parsing library to handle all the edge cases, too.
-    parse: (s) => ({status: 'ok', value: parseFloat(s)}),
+    // Long term, we may want to use a parsing library to handle all the edge cases that are
+    // bound to happen.
+    parse: (s) => {
+      const val = parseFloat(s)
+
+      if (isNaN(val)) {
+        return {status: 'error', message: `"${s}" is not a number.`}
+      }
+
+      return {status: 'ok', value: parseFloat(s)}
+    },
   }
 }
 

@@ -1,11 +1,11 @@
 import {
   MantineReactTable,
-  MRT_Cell,
   MRT_ColumnDef,
   useMantineReactTable,
 } from 'mantine-react-table';
-import { useMemo } from 'react';
-import { ColumnKey, RowTemplate } from './types';
+import { useEffect, useMemo, useState } from 'react';
+import { ColumnKey, ColumnTemplate, ParseError, RowTemplate } from './types';
+import { Stack, Text } from '@mantine/core';
 
 
 // An input row, before any attempts at parsing.
@@ -20,7 +20,7 @@ type CellValue = {
   // This may often be the same as the raw value.
   displayValue: string
 
-  // TODO errors and stuff.
+  error?: ParseError
 }
 
 // Row data post-parsing.
@@ -40,65 +40,87 @@ export function Reviewer<RT extends RowTemplate>({
   data: RawRow<RT>[]
   // TODO: Use the same column order as the input file.
 }) {
+  const [parsedData, setParsedData] = useState<Row<RT>[]>([])
+
+  // We should eventually probably factor out the parsing logic from the
+  // display functionality, I'm just lumping everything in here for now while I figure
+  // out what it looks like.
+  useEffect(() => {
+    setParsedData(inputData.map((rawRow) => {
+      const parsedRow = Object.fromEntries(
+        Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
+          return [key, parseCellValue(template[key], rawValue)]
+        })
+      )
+
+      return parsedRow as Row<RT>
+    }))
+  }, [inputData, template])
+
   const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
     return Object.entries(template).map(([key, colTemplate]) => {
       return {
         id: key,
         header: colTemplate.label ?? key,
         accessorFn: (row: Row<RT>) => {
-          debugger;
-          return row[key].displayValue
+          return row[key].rawValue
         },
-        // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
+        Cell: ({row}) => {
+          const cell = parsedData[row.index][key]
+
+          return (
+            <Stack spacing="xs">
+              <Text>
+                {cell.displayValue}
+              </Text>
+              {cell.error ?
+                <Text color="red">
+                  {cell.error.message}
+                </Text>
+              : null}
+            </Stack>
+          )
+        },
+        mantineEditTextInputProps: ({row}) => {
+          const val = parsedData[row.index][key]
+
+          return {
+            error: val.error?.message,
+            onBlur: (e) => {
+              parsedData[row.index][key as keyof RT] = parseCellValue(template[key], e.target.value)
+              setParsedData(parsedData)
+            },
+          }
+        },
       }
     })
   },
-    [template],
+    [template, parsedData],
   )
-
-  // We should eventually probably factor out the parsing logic from the
-  // display functionality, I'm just lumping everything in here for now while I figure
-  // out what it looks like.
-  const parsedData = useMemo<Row<RT>[]>(() => {
-    return inputData.map((rawRow) => {
-      const parsedRow = Object.fromEntries(
-        Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
-          const parsed = template[key].parse(rawValue)
-          switch (parsed.status) {
-            case "ok":
-              return [key, {
-                rawValue: parsed.value,
-                displayValue: parsed.displayValue ?? parsed.value,
-              }]
-            case "error":
-              return [key, {
-                rawValue: parsed.message,
-                displayValue: parsed.message,
-                // TODO: Indicate errors.
-              }]
-          }
-        })
-      )
-
-      return parsedRow as Row<RT>
-    })
-  }, [inputData, template])
-
-  // TODO NEXT:
-  // 2. Surface errors.
 
   const table = useMantineReactTable({
     columns: columnDefs,
     data: parsedData,
     enableEditing: true,
-    editDisplayMode: 'table',
+    editDisplayMode: 'cell',
   })
 
   return <MantineReactTable table={table} />
 }
 
-type CellID = string
-
-function getCellID(c: MRT_Cell): CellID {
-  return `${c.row.id}-${c.column.id}`
+function parseCellValue<T>(template: ColumnTemplate<T>, rawValue: string): CellValue {
+  const parsed = template.parse(rawValue)
+  switch (parsed.status) {
+    case "ok":
+      return {
+        rawValue: rawValue,
+        displayValue: parsed.displayValue ?? rawValue,
+      }
+    case "error":
+      return {
+        rawValue: rawValue,
+        displayValue: rawValue,
+        error: parsed,
+      }
+  }
 }
