@@ -3,7 +3,7 @@ import {
   MRT_ColumnDef,
   useMantineReactTable,
 } from 'mantine-react-table';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ColumnKey, ParseError, RowTemplate } from './types';
 import { Stack, Text } from '@mantine/core';
 
@@ -40,12 +40,13 @@ export function Reviewer<RT extends RowTemplate>({
   data: RawRow<RT>[]
   // TODO: Use the same column order as the input file.
 }) {
+  const [parsedData, setParsedData] = useState<Row<RT>[]>([])
 
   // We should eventually probably factor out the parsing logic from the
   // display functionality, I'm just lumping everything in here for now while I figure
   // out what it looks like.
-  const parsedData = useMemo<Row<RT>[]>(() => {
-    return inputData.map((rawRow) => {
+  useEffect(() => {
+    setParsedData(inputData.map((rawRow) => {
       const parsedRow = Object.fromEntries(
         Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
           const parsed = template[key].parse(rawValue)
@@ -66,9 +67,8 @@ export function Reviewer<RT extends RowTemplate>({
       )
 
       return parsedRow as Row<RT>
-    })
+    }))
   }, [inputData, template])
-
 
   const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
     return Object.entries(template).map(([key, colTemplate]) => {
@@ -97,23 +97,20 @@ export function Reviewer<RT extends RowTemplate>({
         mantineEditTextInputProps: ({row}) => {
           const val = parsedData[row.index][key]
 
-          if (val.error) {
-            return {
-              error: val.error.message,
-            }
+          return {
+            error: val.error?.message,
+            onBlur: () => {
+              // TODO next: Re-parse data after edits.
+              // This probably involves moving parsed data to a useState hook.
+            },
           }
-
-          return {}
         },
         // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
       }
     })
   },
-    [template],
+    [template, parsedData],
   )
-
-  // TODO NEXT:
-  // 2. Surface errors.
 
   const table = useMantineReactTable({
     columns: columnDefs,
