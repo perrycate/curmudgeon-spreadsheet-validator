@@ -4,7 +4,7 @@ import {
   useMantineReactTable,
 } from 'mantine-react-table';
 import { useEffect, useMemo, useState } from 'react';
-import { ColumnKey, ColumnTemplate, Parsed, ParseError, RowTemplate } from './types';
+import { ColumnKey, ColumnTemplate, ParseError, RowTemplate } from './types';
 import { Stack, Text } from '@mantine/core';
 
 
