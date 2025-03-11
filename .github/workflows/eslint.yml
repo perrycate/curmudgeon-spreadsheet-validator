@@ -28,5 +28,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install deps
+        run: npm install
+
       - name: Run ESLint
-        run: npx eslint .
+        run: npm run lint
