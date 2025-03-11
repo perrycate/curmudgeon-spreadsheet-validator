@@ -1,3 +1,5 @@
+/* eslint react/prop-types: 0 */
+// ^See https://github.com/KevinVandy/mantine-react-table/issues/92
 import {
   MantineReactTable,
   MRT_ColumnDef,

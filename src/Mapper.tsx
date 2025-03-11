@@ -27,7 +27,10 @@ export function Mapper<RT extends RowTemplate>(props: MapperProps<RT>) {
   />
 }
 
-interface CSVTemplate {
+// Excess property checks are stricter with interfaces.
+// If we used an interface here, we'd get a type error with CSVImporter.
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+type CSVTemplate = {
   columns: CSVTemplateColumn[];
 }
 
@@ -67,7 +70,7 @@ function configFromTemplate(t: RowTemplate): CSVTemplate {
   }
 }
 
-function configColumn(key: string, column: ColumnTemplate<any>): CSVTemplateColumn {
+function configColumn(key: string, column: ColumnTemplate<unknown>): CSVTemplateColumn {
   return {
     name: column.label ?? key,
     key: key,

@@ -1,6 +1,6 @@
 export type ColumnKey = string
 
-export type RowTemplate = Record<ColumnKey, ColumnTemplate<any>>;
+export type RowTemplate = Record<ColumnKey, ColumnTemplate<unknown>>;
 
 export interface ColumnTemplate<Type> {
   // If set, the importer will use this as the human-readable label for

@@ -1,7 +1,7 @@
 import { ReturnedRow, RowTemplate } from "./types";
 import { Mapper } from "./Mapper";
 import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
-import { Reviewer } from "./Reviewer";
+import { RawRow, Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
@@ -77,14 +77,14 @@ function ReviewerWrapper({
 }: {
   template: RowTemplate,
 }) {
-  const [searchParams, _setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const encodedData = searchParams.get("data")
   if (encodedData === null) {
     return "No data"
   }
 
-  const data = JSON.parse(decodeURIComponent(encodedData))
+  const data = JSON.parse(decodeURIComponent(encodedData)) as RawRow<typeof template>[]
 
   return (
    <Reviewer
