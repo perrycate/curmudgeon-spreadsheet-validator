@@ -1,25 +1,28 @@
-import './App.css'
-import { Importer } from './Importer'
-import { dateColumn, numberColumn, stringColumn } from './types'
+import "./App.css";
+import { Importer } from "./Importer";
+import { dateColumn, numberColumn, stringColumn } from "./types";
 
 function App() {
   return (
     <>
-      <Importer columns={
-        {
-          description: stringColumn({mustBeMapped: true, label: "Description"}),
-          startDate: dateColumn({label: "Start Date"}),
-          quantity: numberColumn({label: "Quantity"}),
+      <Importer
+        columns={{
+          description: stringColumn({
+            mustBeMapped: true,
+            label: "Description",
+          }),
+          startDate: dateColumn({ label: "Start Date" }),
+          quantity: numberColumn({ label: "Quantity" }),
         }}
         onSuccess={(rows) => {
-          rows.map(r => {
-            console.log(r.description)
-          })
+          rows.map((r) => {
+            console.log(r.description);
+          });
         }}
         debugMode={true}
       />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

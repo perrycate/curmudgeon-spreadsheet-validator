@@ -1,24 +1,24 @@
-export type ColumnKey = string
+export type ColumnKey = string;
 
 export type RowTemplate = Record<ColumnKey, ColumnTemplate<unknown>>;
 
 export interface ColumnTemplate<Type> {
   // If set, the importer will use this as the human-readable label for
   // this column.
-  label?: string
+  label?: string;
 
   // If set, this text will be added as a description for the given column.
-  description?: string
+  description?: string;
 
   // If true, users will be forced to map a column in the input file to this column.
   //
   // This is not the same as required vs optional - those pertain to the data returned
   // at the end of the proces. A column that is required but is not mapped will be added
   // after the mapping phase, and the user will be prompted to fill it out for each row.
-  mustBeMapped?: boolean
+  mustBeMapped?: boolean;
 
   // Extracts the given type from a raw string value.
-  parse: (cellValue: string) => Parsed<Type> | ParseError
+  parse: (cellValue: string) => Parsed<Type> | ParseError;
 
   // Probably a bunch of optional hooks here for things like checking
   // the data looks a certain way and prompting the user if it doesn't.
@@ -29,90 +29,101 @@ export interface ColumnTemplate<Type> {
 }
 
 export interface Parsed<Type> {
-  status: 'ok'
+  status: "ok";
 
   // The parsed value of the cell.
   //
   // This is the value passed to the caller at the end of the import process.
-  value: Type
+  value: Type;
 
   // The value that should be shown to the user.
   // If unset, the value will be directly cast as a string.
-  displayValue?: string
+  displayValue?: string;
 }
 
 export interface ParseError {
-  status: 'error'
+  status: "error";
 
   // The error that should be shown to the user.
-  message: string
+  message: string;
 }
 
-type OptionalColumn<T> = ColumnTemplate<T> & { optional: true }
+type OptionalColumn<T> = ColumnTemplate<T> & { optional: true };
 
 // Unwraps the type that should be returned from a column template.
-export type Result<T, C extends ColumnTemplate<T>> = C extends OptionalColumn<T> ? T | null : T
+export type Result<T, C extends ColumnTemplate<T>> =
+  C extends OptionalColumn<T> ? T | null : T;
 
 // ReturnedRow unwraps each column type in a RowTemplate.
 //
 // In other words, this describes the type the caller should expect to recieve
 // at the end of an import operation, for some row template.
 export type ReturnedRow<T extends RowTemplate> = {
-  readonly [Property in keyof T]: T[Property] extends ColumnTemplate<infer ReturnType> ? Result<ReturnType, T[Property]> : never
-}
+  readonly [Property in keyof T]: T[Property] extends ColumnTemplate<
+    infer ReturnType
+  >
+    ? Result<ReturnType, T[Property]>
+    : never;
+};
 
 export function makeOptional<T>(c: ColumnTemplate<T>): OptionalColumn<T> {
   return {
     ...c,
-    optional: true as const
-  }
+    optional: true as const,
+  };
 }
 
 // Idea for later: Rather than all these helper functions, can we construct the template using react?
 
-export function stringColumn(c: Omit<ColumnTemplate<string>, "parse">): ColumnTemplate<string> {
+export function stringColumn(
+  c: Omit<ColumnTemplate<string>, "parse">,
+): ColumnTemplate<string> {
   return {
     ...c,
     // Strings get passed through directly.
-    parse: (s) => ({status: 'ok', value: s})
-  }
+    parse: (s) => ({ status: "ok", value: s }),
+  };
 }
 
-export function dateColumn(c: Omit<ColumnTemplate<Date>, "parse">): ColumnTemplate<Date> {
+export function dateColumn(
+  c: Omit<ColumnTemplate<Date>, "parse">,
+): ColumnTemplate<Date> {
   return {
     ...c,
     parse: (s) => {
       // Long term, should probably use dateJS?
-      const val = new Date(s)
+      const val = new Date(s);
 
       if (isNaN(val.valueOf())) {
-        return {status: 'error', message: `"${s}" is not a valid date.`}
+        return { status: "error", message: `"${s}" is not a valid date.` };
       }
 
       return {
-        status: 'ok',
+        status: "ok",
         value: val,
-        displayValue: val.toString()
-      }
-    }
-  }
+        displayValue: val.toString(),
+      };
+    },
+  };
 }
 
-export function numberColumn(c: Omit<ColumnTemplate<number>, "parse">): ColumnTemplate<number> {
+export function numberColumn(
+  c: Omit<ColumnTemplate<number>, "parse">,
+): ColumnTemplate<number> {
   return {
     ...c,
     // Long term, we may want to use a parsing library to handle all the edge cases that are
     // bound to happen.
     parse: (s) => {
-      const val = parseFloat(s)
+      const val = parseFloat(s);
 
       if (isNaN(val)) {
-        return {status: 'error', message: `"${s}" is not a number.`}
+        return { status: "error", message: `"${s}" is not a number.` };
       }
 
-      return {status: 'ok', value: parseFloat(s)}
+      return { status: "ok", value: parseFloat(s) };
     },
-  }
+  };
 }
 
 // Examples / thinking out loud:
