@@ -4,7 +4,7 @@ import {
   useMantineReactTable,
 } from 'mantine-react-table';
 import { useEffect, useMemo, useState } from 'react';
-import { ColumnKey, ParseError, RowTemplate } from './types';
+import { ColumnKey, ColumnTemplate, Parsed, ParseError, RowTemplate } from './types';
 import { Stack, Text } from '@mantine/core';
 
 
@@ -49,20 +49,7 @@ export function Reviewer<RT extends RowTemplate>({
     setParsedData(inputData.map((rawRow) => {
       const parsedRow = Object.fromEntries(
         Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
-          const parsed = template[key].parse(rawValue)
-          switch (parsed.status) {
-            case "ok":
-              return [key, {
-                rawValue: rawValue,
-                displayValue: parsed.displayValue ?? parsed.value,
-              }]
-            case "error":
-              return [key, {
-                rawValue: rawValue,
-                displayValue: rawValue,
-                error: parsed,
-              }]
-          }
+          return [key, parseCellValue(template[key], rawValue)]
         })
       )
 
@@ -99,9 +86,9 @@ export function Reviewer<RT extends RowTemplate>({
 
           return {
             error: val.error?.message,
-            onBlur: () => {
-              // TODO next: Re-parse data after edits.
-              // This probably involves moving parsed data to a useState hook.
+            onBlur: (e) => {
+              const updatedValue = template[key].parse(e.target.value)
+              //parsedData[row.index][key as keyof RT] = updatedValue
             },
           }
         },
@@ -120,4 +107,21 @@ export function Reviewer<RT extends RowTemplate>({
   })
 
   return <MantineReactTable table={table} />
+}
+
+function parseCellValue<T>(template: ColumnTemplate<T>, rawValue: string): CellValue {
+  const parsed = template.parse(rawValue)
+  switch (parsed.status) {
+    case "ok":
+      return {
+        rawValue: rawValue,
+        displayValue: parsed.displayValue ?? rawValue,
+      }
+    case "error":
+      return {
+        rawValue: rawValue,
+        displayValue: rawValue,
+        error: parsed,
+      }
+  }
 }
