@@ -18,10 +18,10 @@ import { RawRow, Reviewer } from "./Reviewer";
  */
 
 export interface ImporterProps<T extends RowTemplate> {
-  columns: T
+  columns: T;
 
   // Called once the input has been validated.
-  onSuccess: (rows: ReturnedRow<T>[]) => void
+  onSuccess: (rows: ReturnedRow<T>[]) => void;
 
   // If true, routes will be set up for each individual phase, and data
   // will be passed between phases via url params.
@@ -29,14 +29,14 @@ export interface ImporterProps<T extends RowTemplate> {
   // This is probably not what we'll want when actually using this (passing data
   // between phases via the url seems sketchy/fragile), but it should make manual
   // testing/debugging a lot easier.
-  debugMode?: boolean
+  debugMode?: boolean;
 }
 
 export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   if (!props.debugMode) {
-    return "This is dev only for now, don't actually use this. lol."
+    return "This is dev only for now, don't actually use this. lol.";
   }
 
   return (
@@ -50,9 +50,11 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
               isModal={false}
               darkMode={true}
               onComplete={(d) => {
-                const mappedData = d.rows.map(r => r.values)
+                const mappedData = d.rows.map((r) => r.values);
 
-                void navigate(`/review?data=${encodeURIComponent(JSON.stringify(mappedData))}`)
+                void navigate(
+                  `/review?data=${encodeURIComponent(JSON.stringify(mappedData))}`,
+                );
               }}
             />
           }
@@ -62,34 +64,27 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
           element={
             <>
               <a href="/">Start over</a>
-            <ReviewerWrapper template={props.columns}/>
+              <ReviewerWrapper template={props.columns} />
             </>
           }
         />
         <Route path="*" element={"Route not found."} />
       </Routes>
     </>
-  )
+  );
 }
 
-function ReviewerWrapper({
-  template,
-}: {
-  template: RowTemplate,
-}) {
-  const [searchParams] = useSearchParams()
+function ReviewerWrapper({ template }: { template: RowTemplate }) {
+  const [searchParams] = useSearchParams();
 
-  const encodedData = searchParams.get("data")
+  const encodedData = searchParams.get("data");
   if (encodedData === null) {
-    return "No data"
+    return "No data";
   }
 
-  const data = JSON.parse(decodeURIComponent(encodedData)) as RawRow<typeof template>[]
+  const data = JSON.parse(decodeURIComponent(encodedData)) as RawRow<
+    typeof template
+  >[];
 
-  return (
-   <Reviewer
-     template={template}
-     data={data}
-   />
-  )
+  return <Reviewer template={template} data={data} />;
 }

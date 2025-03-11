@@ -3,28 +3,29 @@ import { Resource } from "i18next";
 import { HTMLAttributes, useMemo } from "react";
 import { ColumnTemplate, RowTemplate } from "./types";
 
-export type MapperProps<RT extends RowTemplate> = (HTMLAttributes<HTMLDialogElement> & HTMLAttributes<HTMLDivElement>) & {
-  template: RT;
-  darkMode?: boolean;
-  primaryColor?: string;
-  className?: string;
-  onComplete?: (data: OnCompleteData<RT>) => void;
-  waitOnComplete?: boolean;
-  customStyles?: Record<string, string> | string;
-  showDownloadTemplateButton?: boolean;
-  skipHeaderRowSelection?: boolean;
-  language?: string;
-  customTranslations?: Resource;
-} & ModalParams;
+export type MapperProps<RT extends RowTemplate> =
+  (HTMLAttributes<HTMLDialogElement> & HTMLAttributes<HTMLDivElement>) & {
+    template: RT;
+    darkMode?: boolean;
+    primaryColor?: string;
+    className?: string;
+    onComplete?: (data: OnCompleteData<RT>) => void;
+    waitOnComplete?: boolean;
+    customStyles?: Record<string, string> | string;
+    showDownloadTemplateButton?: boolean;
+    skipHeaderRowSelection?: boolean;
+    language?: string;
+    customTranslations?: Resource;
+  } & ModalParams;
 
 // Thinnest of wrappers around tableflow's CSVImporter, with better types.
 export function Mapper<RT extends RowTemplate>(props: MapperProps<RT>) {
-  const config = useMemo(() => configFromTemplate(props.template), [props.template])
+  const config = useMemo(
+    () => configFromTemplate(props.template),
+    [props.template],
+  );
 
-  return <CSVImporter
-    {...props}
-    template={config}
-  />
+  return <CSVImporter {...props} template={config} />;
 }
 
 // Excess property checks are stricter with interfaces.
@@ -32,7 +33,7 @@ export function Mapper<RT extends RowTemplate>(props: MapperProps<RT>) {
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type CSVTemplate = {
   columns: CSVTemplateColumn[];
-}
+};
 
 // The per-column configuration csv-template expects.
 interface CSVTemplateColumn {
@@ -50,10 +51,10 @@ interface MappedRow<RT extends RowTemplate> {
 }
 
 interface OnCompleteData<RT extends RowTemplate> {
-  num_rows: number
-  num_columns: number
-  columns: { key: string, name: string }[]
-  rows: MappedRow<RT>[],
+  num_rows: number;
+  num_columns: number;
+  columns: { key: string; name: string }[];
+  rows: MappedRow<RT>[];
 }
 
 interface ModalParams {
@@ -63,14 +64,18 @@ interface ModalParams {
   modalCloseOnOutsideClick?: boolean;
 }
 
-
 function configFromTemplate(t: RowTemplate): CSVTemplate {
   return {
-    columns: Object.entries(t).map(([key, userConfig]) => configColumn(key, userConfig))
-  }
+    columns: Object.entries(t).map(([key, userConfig]) =>
+      configColumn(key, userConfig),
+    ),
+  };
 }
 
-function configColumn(key: string, column: ColumnTemplate<unknown>): CSVTemplateColumn {
+function configColumn(
+  key: string,
+  column: ColumnTemplate<unknown>,
+): CSVTemplateColumn {
   return {
     name: column.label ?? key,
     key: key,
@@ -78,5 +83,5 @@ function configColumn(key: string, column: ColumnTemplate<unknown>): CSVTemplate
     required: column.mustBeMapped,
     // TODO: Support suggested mappings.
     suggested_mappings: [],
-  }
+  };
 }
