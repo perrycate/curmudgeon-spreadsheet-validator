@@ -1,3 +1,5 @@
+import { ImporterProps } from "./Importer";
+
 export type ColumnKey = string;
 
 export type RowTemplate = Record<ColumnKey, ColumnTemplate<unknown>>;
@@ -128,24 +130,24 @@ export function numberColumn(
 
 // Examples / thinking out loud:
 
-/*
 // Let's say a caller defines a template as such:
 const myTemplate = {
   description: makeOptional(stringColumn({})),
   startDate: dateColumn({}),
   quantity: numberColumn({}),
-}
+};
 
 // These are the args we'd pass into our importer react component.
+// @ts-expect-error Unused variable because this is just an example.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _: ImporterProps<typeof myTemplate> = {
   columns: myTemplate,
   onSuccess: (rows) => {
-    rows.map(r => {
-      console.log(r.description) // r.description is a string | null!
-      console.log(r.quantity * 10) // r.quantity is a number!
-      console.log(r.startDate)
+    rows.map((r) => {
+      console.log(r.description); // r.description is a string | null!
+      console.log(r.quantity * 10); // r.quantity is a number!
+      console.log(r.startDate);
       // And so forth...
-    })
-  }
-}
-*/
+    });
+  },
+};
