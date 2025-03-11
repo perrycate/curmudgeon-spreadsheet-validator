@@ -5,8 +5,8 @@ import { Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
- * 2. Add some primitives for showing errors in the review phase.
- * 2.5 Figure out what primitives we need for allowing the user to actually edit/correct items during review.
+ * 2.7 Add a "proceed" button from the review page.
+ * 2.8 Add an "ignore rows with errors" option when proceeding.
  * 3. Handle optional values.
  * 4.5 Add mechanism for adding required but non-mapped columns.
  * 5. Add Picklist support.
