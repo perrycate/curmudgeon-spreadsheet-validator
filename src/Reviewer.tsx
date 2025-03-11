@@ -87,12 +87,11 @@ export function Reviewer<RT extends RowTemplate>({
           return {
             error: val.error?.message,
             onBlur: (e) => {
-              const updatedValue = template[key].parse(e.target.value)
-              //parsedData[row.index][key as keyof RT] = updatedValue
+              parsedData[row.index][key as keyof RT] = parseCellValue(template[key], e.target.value)
+              setParsedData(parsedData)
             },
           }
         },
-        // TODO restore edit. Commit 1f5f6791d8821b250daad8679a922395a8e4e44c.
       }
     })
   },
