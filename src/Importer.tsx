@@ -17,7 +17,7 @@ import { Reviewer } from "./Reviewer";
  * 10. Make this hackable. Callers should be able to override chunks.
  */
 
-export type ImporterProps<T extends RowTemplate> = {
+export interface ImporterProps<T extends RowTemplate> {
   columns: T
 
   // Called once the input has been validated.
@@ -52,7 +52,7 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
               onComplete={(d) => {
                 const mappedData = d.rows.map(r => r.values)
 
-                navigate(`/review?data=${encodeURIComponent(JSON.stringify(mappedData))}`)
+                void navigate(`/review?data=${encodeURIComponent(JSON.stringify(mappedData))}`)
               }}
             />
           }
@@ -72,10 +72,10 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
   )
 }
 
-function ReviewerWrapper<RT extends RowTemplate>({
+function ReviewerWrapper({
   template,
 }: {
-  template: RT,
+  template: RowTemplate,
 }) {
   const [searchParams, _setSearchParams] = useSearchParams()
 
