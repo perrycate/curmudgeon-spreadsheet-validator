@@ -1,7 +1,7 @@
 import { ReturnedRow, RowTemplate } from "./types";
 import { Mapper } from "./Mapper";
 import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
-import { Reviewer } from "./Reviewer";
+import { RawRow, Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
@@ -17,7 +17,7 @@ import { Reviewer } from "./Reviewer";
  * 10. Make this hackable. Callers should be able to override chunks.
  */
 
-export type ImporterProps<T extends RowTemplate> = {
+export interface ImporterProps<T extends RowTemplate> {
   columns: T
 
   // Called once the input has been validated.
@@ -52,7 +52,7 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
               onComplete={(d) => {
                 const mappedData = d.rows.map(r => r.values)
 
-                navigate(`/review?data=${encodeURIComponent(JSON.stringify(mappedData))}`)
+                void navigate(`/review?data=${encodeURIComponent(JSON.stringify(mappedData))}`)
               }}
             />
           }
@@ -72,19 +72,19 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
   )
 }
 
-function ReviewerWrapper<RT extends RowTemplate>({
+function ReviewerWrapper({
   template,
 }: {
-  template: RT,
+  template: RowTemplate,
 }) {
-  const [searchParams, _setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const encodedData = searchParams.get("data")
   if (encodedData === null) {
     return "No data"
   }
 
-  const data = JSON.parse(decodeURIComponent(encodedData))
+  const data = JSON.parse(decodeURIComponent(encodedData)) as RawRow<typeof template>[]
 
   return (
    <Reviewer

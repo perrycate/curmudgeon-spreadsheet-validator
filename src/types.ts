@@ -1,10 +1,8 @@
 export type ColumnKey = string
 
-export type RowTemplate = {
-  [key: ColumnKey]: ColumnTemplate<any>
-}
+export type RowTemplate = Record<ColumnKey, ColumnTemplate<unknown>>;
 
-export type ColumnTemplate<Type> = {
+export interface ColumnTemplate<Type> {
   // If set, the importer will use this as the human-readable label for
   // this column.
   label?: string
@@ -30,7 +28,7 @@ export type ColumnTemplate<Type> = {
   // that type.
 }
 
-export type Parsed<Type> = {
+export interface Parsed<Type> {
   status: 'ok'
 
   // The parsed value of the cell.
@@ -43,7 +41,7 @@ export type Parsed<Type> = {
   displayValue?: string
 }
 
-export type ParseError = {
+export interface ParseError {
   status: 'error'
 
   // The error that should be shown to the user.

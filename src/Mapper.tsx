@@ -27,38 +27,41 @@ export function Mapper<RT extends RowTemplate>(props: MapperProps<RT>) {
   />
 }
 
+// Excess property checks are stricter with interfaces.
+// If we used an interface here, we'd get a type error with CSVImporter.
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type CSVTemplate = {
   columns: CSVTemplateColumn[];
 }
 
 // The per-column configuration csv-template expects.
-type CSVTemplateColumn = {
+interface CSVTemplateColumn {
   name: string;
   key: string;
   description?: string;
   required?: boolean;
   // The casing is off here because that's what csv-template expects. Go figure.
   suggested_mappings?: string[];
-};
+}
 
-type MappedRow<RT extends RowTemplate> = {
+interface MappedRow<RT extends RowTemplate> {
   index: number;
   values: Record<keyof RT, string>;
-};
+}
 
-type OnCompleteData<RT extends RowTemplate> = {
+interface OnCompleteData<RT extends RowTemplate> {
   num_rows: number
   num_columns: number
   columns: { key: string, name: string }[]
   rows: MappedRow<RT>[],
 }
 
-type ModalParams = {
+interface ModalParams {
   isModal?: boolean;
   modalIsOpen?: boolean;
   modalOnCloseTriggered?: () => void;
   modalCloseOnOutsideClick?: boolean;
-};
+}
 
 
 function configFromTemplate(t: RowTemplate): CSVTemplate {
@@ -67,7 +70,7 @@ function configFromTemplate(t: RowTemplate): CSVTemplate {
   }
 }
 
-function configColumn(key: string, column: ColumnTemplate<any>): CSVTemplateColumn {
+function configColumn(key: string, column: ColumnTemplate<unknown>): CSVTemplateColumn {
   return {
     name: column.label ?? key,
     key: key,

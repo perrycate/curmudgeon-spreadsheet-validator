@@ -1,3 +1,5 @@
+/* eslint react/prop-types: 0 */
+// ^See https://github.com/KevinVandy/mantine-react-table/issues/92
 import {
   MantineReactTable,
   MRT_ColumnDef,
@@ -12,7 +14,7 @@ import { Stack, Text } from '@mantine/core';
 export type RawRow<RT extends RowTemplate> = Record<keyof RT, string>
 
 // Describes a single cell during the review phase.
-type CellValue = {
+interface CellValue {
   // What is shown when editing.
   rawValue: string
 
