@@ -5,7 +5,6 @@ import { RawRow, Reviewer } from "./Reviewer";
 
 /**
  * Rough plan of attack:
- * 0. Set up linting in CI.
  * 2.7 Add a "proceed" button from the review page.
  * 2.8 Add an "ignore rows with errors" option when proceeding.
  * 3. Handle optional values.
