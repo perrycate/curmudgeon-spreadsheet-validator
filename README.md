@@ -51,3 +51,5 @@ and replace it with some instructions.
 ## Dev Notes
 
 `npm run dev`
+
+`npm run lint`
