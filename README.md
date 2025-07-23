@@ -53,3 +53,4 @@ and replace it with some instructions.
 `npm run dev`
 
 `npm run lint`
+`npm run format`
