@@ -17,7 +17,7 @@ Subject to change, but not for debate.
 
 #### Return rich types.
 
-No "Here's a string, I promise it's a number". Use the damn type system.
+None of that "Here's a string, I promise it's a number". Use the damn type system.
 
 #### Frontend only.
 
