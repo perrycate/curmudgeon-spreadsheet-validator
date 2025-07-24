@@ -7,7 +7,7 @@ import {
 } from "mantine-react-table";
 import { useEffect, useMemo, useState } from "react";
 import { ColumnKey, ColumnTemplate, ParseError, RowTemplate } from "./types";
-import { Stack, Text } from "@mantine/core";
+import { Button, Stack, Text } from "@mantine/core";
 
 // An input row, before any attempts at parsing.
 export type RawRow<RT extends RowTemplate> = Record<keyof RT, string>;
@@ -42,22 +42,26 @@ export function Reviewer<RT extends RowTemplate>({
   // TODO: Use the same column order as the input file.
 }) {
   const [parsedData, setParsedData] = useState<Row<RT>[]>([]);
+  const [areErrorsPresent, setAreErrorsPresent] = useState<boolean>(true);
 
   // We should eventually probably factor out the parsing logic from the
   // display functionality, I'm just lumping everything in here for now while I figure
   // out what it looks like.
   useEffect(() => {
-    setParsedData(
-      inputData.map((rawRow) => {
-        const parsedRow = Object.fromEntries(
-          Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
-            return [key, parseCellValue(template[key], rawValue)];
-          }),
-        );
+    const parsed = inputData.map((rawRow) => {
+      const parsedRow = Object.fromEntries(
+        Object.entries(rawRow).map(([key, rawValue]: [ColumnKey, string]) => {
+          return [key, parseCellValue(template[key], rawValue)];
+        }),
+      );
 
-        return parsedRow as Row<RT>;
-      }),
-    );
+      return parsedRow as Row<RT>;
+    });
+
+    console.log(parsed);
+
+    setParsedData(parsed);
+    setAreErrorsPresent(parsed.some(hasError));
   }, [inputData, template]);
 
   const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
@@ -98,6 +102,7 @@ export function Reviewer<RT extends RowTemplate>({
     });
   }, [template, parsedData]);
 
+  // TODO: We're not actually updating state when edits are made.
   const table = useMantineReactTable({
     columns: columnDefs,
     data: parsedData,
@@ -105,7 +110,19 @@ export function Reviewer<RT extends RowTemplate>({
     editDisplayMode: "cell",
   });
 
-  return <MantineReactTable table={table} />;
+  return (
+    <Stack>
+      <MantineReactTable table={table} />
+      <Button
+        onClick={() => {
+          console.log("hi");
+        }}
+        disabled={areErrorsPresent}
+      >
+        Submit
+      </Button>
+    </Stack>
+  );
 }
 
 function parseCellValue<T>(
@@ -126,4 +143,10 @@ function parseCellValue<T>(
         error: parsed,
       };
   }
+}
+
+function hasError<RT extends RowTemplate>(r: Row<RT>): boolean {
+  return Object.entries(r).some(([_key, cv]) => {
+    return cv.error !== undefined;
+  });
 }

@@ -11,6 +11,7 @@ import { RawRow, Reviewer } from "./Reviewer";
  * 4.5 Add mechanism for adding required but non-mapped columns.
  * 5. Add Picklist support.
  * 6. Improve styling.
+ *    * One-click edits instead of double-click.
  *    * Errors shouldn't change cell height. (Popup, maybe?)
  *    * Highlight error cells?
  * 10. Make this hackable. Callers should be able to override chunks.
