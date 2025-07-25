@@ -54,6 +54,8 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
             </>
           }
         />
+        <Route path="/done" element={<h1>yay you&apos;re done</h1>} />
+
         <Route path="*" element={"Route not found."} />
       </Routes>
     </>
@@ -62,6 +64,7 @@ export function Importer<RT extends RowTemplate>(props: ImporterProps<RT>) {
 
 function ReviewerWrapper({ template }: { template: RowTemplate }) {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const encodedData = searchParams.get("data");
   if (encodedData === null) {
@@ -72,5 +75,14 @@ function ReviewerWrapper({ template }: { template: RowTemplate }) {
     typeof template
   >[];
 
-  return <Reviewer template={template} data={data} />;
+  return (
+    <Reviewer
+      template={template}
+      data={data}
+      onComplete={(rows) => {
+        console.log(rows);
+        void navigate("/done");
+      }}
+    />
+  );
 }

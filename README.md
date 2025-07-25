@@ -51,9 +51,11 @@ and replace it with some instructions.
 ## Contributing
 
 ### Structure
+
 `Importer.tsx` is the entry point. Each "step" is another component, see Mapper.tsx, Reviewer.tsx, etc.
 
 ### Dev commands
+
 Start dev server:
 `npm run dev`
 
@@ -62,15 +64,15 @@ Linting, formatting:
 `npm run format`
 
 ### TODOs
+
 My rough plan of attack:
 
 2.7 Add a "proceed" button from the review page.
-2.9 Add mechanism for adding required but non-mapped columns.
-3. Handle optional values.
-3.5 Add an "ignore rows with errors" option when proceeding.
-5. Add Picklist support.
-6. Improve styling.
-   * One-click edits instead of double-click.
-   * Errors shouldn't change cell height. (Popup, maybe?)
-   * Highlight error cells?
+2.9 Add mechanism for adding required but non-mapped columns. 3. Handle optional values.
+3.5 Add an "ignore rows with errors" option when proceeding. 5. Add Picklist support. 6. Improve styling.
+
+- One-click edits instead of double-click.
+- Errors shouldn't change cell height. (Popup, maybe?)
+- Highlight error cells?
+
 10. Make this hackable. Callers should be able to override chunks.

@@ -34,11 +34,13 @@ type Row<RT extends RowTemplate> = {
 export function Reviewer<RT extends RowTemplate>({
   template,
   data: inputData,
+  onComplete,
 }: {
   template: RT;
   // For the future: I wonder if we could use types to enforce that these are the same
   // length?
   data: RawRow<RT>[];
+  onComplete: (rows: Row<RT>[]) => void;
   // TODO: Use the same column order as the input file.
 }) {
   const [parsedData, _setParsedData] = useState<Row<RT>[]>([]);
@@ -116,7 +118,7 @@ export function Reviewer<RT extends RowTemplate>({
       <MantineReactTable table={table} />
       <Button
         onClick={() => {
-          console.log("hi");
+          onComplete(parsedData);
         }}
         disabled={areErrorsPresent}
       >
