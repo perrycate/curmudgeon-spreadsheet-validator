@@ -146,7 +146,7 @@ function parseCellValue<T>(
 }
 
 function hasError<RT extends RowTemplate>(r: Row<RT>): boolean {
-  return Object.entries(r).some(([_key, cv]) => {
+  return Object.values(r).some((cv) => {
     return cv.error !== undefined;
   });
 }
