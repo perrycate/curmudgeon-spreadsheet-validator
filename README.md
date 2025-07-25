@@ -65,9 +65,9 @@ Linting, formatting:
 My rough plan of attack:
 
 2.7 Add a "proceed" button from the review page.
-2.8 Add an "ignore rows with errors" option when proceeding.
+2.9 Add mechanism for adding required but non-mapped columns.
 3. Handle optional values.
-4.5 Add mechanism for adding required but non-mapped columns.
+3.5 Add an "ignore rows with errors" option when proceeding.
 5. Add Picklist support.
 6. Improve styling.
    * One-click edits instead of double-click.

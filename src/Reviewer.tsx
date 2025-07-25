@@ -5,7 +5,7 @@ import {
   MRT_ColumnDef,
   useMantineReactTable,
 } from "mantine-react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ColumnKey, ColumnTemplate, ParseError, RowTemplate } from "./types";
 import { Button, Stack, Text } from "@mantine/core";
 
@@ -41,8 +41,13 @@ export function Reviewer<RT extends RowTemplate>({
   data: RawRow<RT>[];
   // TODO: Use the same column order as the input file.
 }) {
-  const [parsedData, setParsedData] = useState<Row<RT>[]>([]);
+  const [parsedData, _setParsedData] = useState<Row<RT>[]>([]);
   const [areErrorsPresent, setAreErrorsPresent] = useState<boolean>(true);
+
+  const setParsedData = useCallback((rows: Row<RT>[]) => {
+    _setParsedData(rows);
+    setAreErrorsPresent(rows.some(hasError));
+  }, []);
 
   // We should eventually probably factor out the parsing logic from the
   // display functionality, I'm just lumping everything in here for now while I figure
@@ -58,11 +63,8 @@ export function Reviewer<RT extends RowTemplate>({
       return parsedRow as Row<RT>;
     });
 
-    console.log(parsed);
-
     setParsedData(parsed);
-    setAreErrorsPresent(parsed.some(hasError));
-  }, [inputData, template]);
+  }, [inputData, template, setParsedData]);
 
   const columnDefs = useMemo<MRT_ColumnDef<Row<RT>>[]>(() => {
     return Object.entries(template).map(([key, colTemplate]) => {
@@ -100,9 +102,8 @@ export function Reviewer<RT extends RowTemplate>({
         },
       };
     });
-  }, [template, parsedData]);
+  }, [template, parsedData, setParsedData]);
 
-  // TODO: We're not actually updating state when edits are made.
   const table = useMantineReactTable({
     columns: columnDefs,
     data: parsedData,
