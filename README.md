@@ -40,7 +40,7 @@ Perry fix it.
 
 ## How to use
 
-That's the neat point, you don't.
+That's the neat part, you don't.
 
 This repo is an experiment wherein I will probably find out the hard way
 why all the other existing tools are unsatisfactory to me.
@@ -48,9 +48,29 @@ why all the other existing tools are unsatisfactory to me.
 In the unlikely event that I arrive at something useful, I will remove this message
 and replace it with some instructions.
 
-## Dev Notes
+## Contributing
 
+### Structure
+`Importer.tsx` is the entry point. Each "step" is another component, see Mapper.tsx, Reviewer.tsx, etc.
+
+### Dev commands
+Start dev server:
 `npm run dev`
 
+Linting, formatting:
 `npm run lint`
 `npm run format`
+
+### TODOs
+My rough plan of attack:
+
+2.7 Add a "proceed" button from the review page.
+2.8 Add an "ignore rows with errors" option when proceeding.
+3. Handle optional values.
+4.5 Add mechanism for adding required but non-mapped columns.
+5. Add Picklist support.
+6. Improve styling.
+   * One-click edits instead of double-click.
+   * Errors shouldn't change cell height. (Popup, maybe?)
+   * Highlight error cells?
+10. Make this hackable. Callers should be able to override chunks.

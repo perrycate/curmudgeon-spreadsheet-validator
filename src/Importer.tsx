@@ -3,20 +3,6 @@ import { Mapper } from "./Mapper";
 import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
 import { RawRow, Reviewer } from "./Reviewer";
 
-/**
- * Rough plan of attack:
- * 2.7 Add a "proceed" button from the review page.
- * 2.8 Add an "ignore rows with errors" option when proceeding.
- * 3. Handle optional values.
- * 4.5 Add mechanism for adding required but non-mapped columns.
- * 5. Add Picklist support.
- * 6. Improve styling.
- *    * One-click edits instead of double-click.
- *    * Errors shouldn't change cell height. (Popup, maybe?)
- *    * Highlight error cells?
- * 10. Make this hackable. Callers should be able to override chunks.
- */
-
 export interface ImporterProps<T extends RowTemplate> {
   columns: T;
 
